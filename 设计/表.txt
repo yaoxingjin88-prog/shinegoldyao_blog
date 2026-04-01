@@ -1,0 +1,214 @@
+-- 1. 网站全局配置表（首页简介、关于我、SEO等核心配置）
+CREATE TABLE `site_config` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `config_key` varchar(100) NOT NULL COMMENT '配置键（唯一标识）',
+  `config_value` longtext COMMENT '配置值（支持富文本/JSON）',
+  `description` varchar(255) DEFAULT '' COMMENT '配置说明',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_config_key` (`config_key`) COMMENT '配置键唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='网站全局配置表';
+
+-- 常用初始配置示例
+INSERT INTO `site_config` (`config_key`, `config_value`, `description`) VALUES
+('site_title', '我的个人网站', '网站标题'),
+('site_subtitle', '专注于全栈开发的技术博客', '网站副标题'),
+('home_intro', '大家好，我是一名全栈开发工程师...', '首页个人简介'),
+('about_content', '<p>关于我的详细介绍...</p>', '关于我页面富文本内容'),
+('avatar', '/static/avatar.jpg', '个人头像地址'),
+('seo_keywords', '个人博客,全栈开发,技术分享', '全局SEO关键词'),
+('seo_description', '我的个人技术博客，分享开发经验与项目作品', '全局SEO描述');
+
+-- 2. 轮播图表
+CREATE TABLE `banner` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `title` varchar(100) DEFAULT '' COMMENT '轮播图标题',
+  `description` varchar(255) DEFAULT '' COMMENT '轮播图描述',
+  `image_url` varchar(500) NOT NULL COMMENT '图片地址',
+  `link_url` varchar(500) DEFAULT '#' COMMENT '跳转链接',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值（越大越靠前）',
+  `is_enable` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用（0=禁用，1=启用）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除，>0=已删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_is_enable` (`is_enable`, `delete_time`) COMMENT '启用状态查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='首页轮播图表';
+
+-- 3. 技术栈分类表
+CREATE TABLE `skill_category` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `category_name` varchar(50) NOT NULL COMMENT '分类名称（如：前端开发、后端开发）',
+  `theme_color` varchar(20) DEFAULT '' COMMENT '分类主题色（支持UI渲染，如 #06B6D4）',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值（越大越靠前）',
+  `is_enable` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用（0=禁用，1=启用）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='技术栈分类表';
+
+-- 4. 技术栈详情表
+CREATE TABLE `skill` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `category_id` bigint UNSIGNED NOT NULL COMMENT '所属分类ID',
+  `skill_name` varchar(50) NOT NULL COMMENT '技术名称（如：Vue、MySQL）',
+  `proficiency` tinyint NOT NULL DEFAULT 0 COMMENT '熟练度（0-100）',
+  `icon_url` varchar(500) DEFAULT '' COMMENT '技术图标地址',
+  `description` varchar(255) DEFAULT '' COMMENT '技术描述',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值（越大越靠前）',
+  `is_enable` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`, `is_enable`, `delete_time`) COMMENT '分类查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='技术栈详情表';
+
+-- 5. 文章分类表
+CREATE TABLE `article_category` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `category_name` varchar(50) NOT NULL COMMENT '分类名称',
+  `slug` varchar(100) NOT NULL COMMENT '分类别名（用于URL，唯一）',
+  `description` varchar(255) DEFAULT '' COMMENT '分类描述',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值',
+  `is_enable` tinyint NOT NULL DEFAULT 1 COMMENT '是否启用',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_slug_deleted` (`slug`, `delete_time`) COMMENT '分类别名与删除时间的联合唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章分类表';
+
+-- 6. 文章标签表
+CREATE TABLE `article_tag` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `tag_name` varchar(50) NOT NULL COMMENT '标签名称',
+  `slug` varchar(100) NOT NULL COMMENT '标签别名（用于URL，唯一）',
+  `theme_color` varchar(20) DEFAULT '' COMMENT '标签专属主题色（如 #1DA1F2）',
+  `description` varchar(255) DEFAULT '' COMMENT '标签描述',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_slug_deleted` (`slug`, `delete_time`) COMMENT '标签别名与删除时间的联合唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章标签表';
+
+-- 7. 文章主表
+CREATE TABLE `article` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `title` varchar(200) NOT NULL COMMENT '文章标题',
+  `slug` varchar(200) NOT NULL COMMENT '文章别名（用于URL，唯一）',
+  `cover_url` varchar(500) DEFAULT '' COMMENT '文章封面图',
+  `summary` varchar(500) DEFAULT '' COMMENT '文章摘要',
+  `content` longtext NOT NULL COMMENT '文章原始内容（Markdown源码）',
+  `html_content` longtext COMMENT '解析后的HTML内容（用于前端直接渲染加速加载）',
+  `category_id` bigint UNSIGNED NOT NULL COMMENT '所属分类ID',
+  `view_count` int NOT NULL DEFAULT 0 COMMENT '浏览量',
+  `is_top` tinyint NOT NULL DEFAULT 0 COMMENT '是否置顶（0=否，1=是）',
+  `is_publish` tinyint NOT NULL DEFAULT 0 COMMENT '是否发布（0=草稿，1=已发布）',
+  `seo_keywords` varchar(255) DEFAULT '' COMMENT '文章独立SEO关键词',
+  `seo_description` varchar(500) DEFAULT '' COMMENT '文章独立SEO描述',
+  `publish_time` datetime DEFAULT NULL COMMENT '发布时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_slug_deleted` (`slug`, `delete_time`) COMMENT '文章别名与删除时间的联合唯一索引',
+  KEY `idx_category_publish` (`category_id`, `is_publish`, `delete_time`) COMMENT '分类+发布状态查询索引',
+  KEY `idx_top_publish` (`is_top`, `is_publish`, `delete_time`) COMMENT '置顶文章查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章主表';
+
+-- 8. 文章-标签关联表（多对多优化：去除了无用自增ID，直接使用复合主键）
+CREATE TABLE `article_tag_relation` (
+  `article_id` bigint UNSIGNED NOT NULL COMMENT '文章ID',
+  `tag_id` bigint UNSIGNED NOT NULL COMMENT '标签ID',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`article_id`, `tag_id`) COMMENT '复合主键（天然防重复关联）',
+  KEY `idx_tag_id` (`tag_id`) COMMENT '标签ID查询索引（用于反查文章）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章-标签关联表';
+
+-- 9. 项目作品集表
+CREATE TABLE `project` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `project_name` varchar(100) NOT NULL COMMENT '项目名称',
+  `cover_url` varchar(500) DEFAULT '' COMMENT '项目封面图',
+  `short_desc` varchar(255) NOT NULL COMMENT '项目短描述（列表展示）',
+  `full_desc` longtext COMMENT '项目详细描述（详情页）',
+  `tech_stack` json DEFAULT NULL COMMENT '项目技术栈（JSON数组，如["Vue","Node.js"]）',
+  `demo_url` varchar(500) DEFAULT '' COMMENT '线上演示地址',
+  `github_url` varchar(500) DEFAULT '' COMMENT 'GitHub仓库地址',
+  `gitee_url` varchar(500) DEFAULT '' COMMENT 'Gitee仓库地址',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值',
+  `is_show` tinyint NOT NULL DEFAULT 1 COMMENT '是否展示（0=隐藏，1=展示）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_is_show` (`is_show`, `delete_time`) COMMENT '展示状态查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目作品集表';
+
+-- 10. 社交链接表（联系我页面）
+CREATE TABLE `social_link` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `platform_name` varchar(50) NOT NULL COMMENT '平台名称（如：GitHub、微信、邮箱）',
+  `icon_url` varchar(500) DEFAULT '' COMMENT '平台图标地址',
+  `link_url` varchar(500) NOT NULL COMMENT '链接/联系地址',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值',
+  `is_show` tinyint NOT NULL DEFAULT 1 COMMENT '是否展示',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='社交链接表';
+
+-- 11. 用户留言表（联系我页面提交）
+CREATE TABLE `message` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `nickname` varchar(50) NOT NULL COMMENT '留言人昵称',
+  `email` varchar(100) NOT NULL COMMENT '留言人邮箱',
+  `content` text NOT NULL COMMENT '留言内容',
+  `contact` varchar(100) DEFAULT '' COMMENT '其他联系方式',
+  `ip_address` varchar(50) DEFAULT '' COMMENT '留言者IP地址（防刷频控）',
+  `user_agent` varchar(255) DEFAULT '' COMMENT '留言者浏览器UA',
+  `is_read` tinyint NOT NULL DEFAULT 0 COMMENT '是否已读（0=未读，1=已读）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_is_read` (`is_read`, `delete_time`) COMMENT '已读状态查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户留言表';
+
+-- 12. 经历表（关于我页面：教育/工作经历）
+CREATE TABLE `experience` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `type` tinyint NOT NULL COMMENT '经历类型（1=教育经历，2=工作经历）',
+  `org_name` varchar(100) NOT NULL COMMENT '机构名称（学校/公司）',
+  `position` varchar(100) NOT NULL COMMENT '职位/专业',
+  `start_date` date NOT NULL COMMENT '开始时间',
+  `end_date` date DEFAULT NULL COMMENT '结束时间（NULL=至今）',
+  `description` text COMMENT '经历描述',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序值',
+  `is_show` tinyint NOT NULL DEFAULT 1 COMMENT '是否展示',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='经历表';
+
+-- 13. 管理员表（后台管理登录）
+CREATE TABLE `admin_user` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(50) NOT NULL COMMENT '登录用户名',
+  `password` varchar(255) NOT NULL COMMENT '登录密码（bcrypt加密）',
+  `nickname` varchar(50) DEFAULT '' COMMENT '管理员昵称',
+  `avatar` varchar(500) DEFAULT '' COMMENT '管理员头像',
+  `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '账号状态（0=禁用，1=正常）',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `delete_time` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳（0=未删除）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username_deleted` (`username`, `delete_time`) COMMENT '用户名与删除时间的联合唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员表';

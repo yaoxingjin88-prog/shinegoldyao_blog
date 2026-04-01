@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model SiteConfig {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  configKey   String   @unique @map("config_key") @db.VarChar(100)
+  configValue String?  @map("config_value") @db.LongText
+  description String   @default("") @db.VarChar(255)
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+
+  @@map("site_config")
+}
+
+model Banner {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  title       String   @default("") @db.VarChar(100)
+  description String   @default("") @db.VarChar(255)
+  imageUrl    String   @map("image_url") @db.VarChar(500)
+  linkUrl     String   @default("#") @map("link_url") @db.VarChar(500)
+  sort        Int      @default(0)
+  isEnable    Int      @default(1) @map("is_enable") @db.TinyInt
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+  deleteTime  BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("banner")
+}
+
+model SkillCategory {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryName String   @map("category_name") @db.VarChar(50)
+  themeColor   String   @default("") @map("theme_color") @db.VarChar(20)
+  sort         Int      @default(0)
+  isEnable     Int      @default(1) @map("is_enable") @db.TinyInt
+  createTime   DateTime @default(now()) @map("create_time")
+  updateTime   DateTime @updatedAt @map("update_time")
+  deleteTime   BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+  skills       Skill[]
+
+  @@map("skill_category")
+}
+
+model Skill {
+  id          BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryId  BigInt        @map("category_id") @db.UnsignedBigInt
+  skillName   String        @map("skill_name") @db.VarChar(50)
+  proficiency Int           @default(0) @db.TinyInt
+  iconUrl     String        @default("") @map("icon_url") @db.VarChar(500)
+  description String        @default("") @db.VarChar(255)
+  sort        Int           @default(0)
+  isEnable    Int           @default(1) @map("is_enable") @db.TinyInt
+  createTime  DateTime      @default(now()) @map("create_time")
+  updateTime  DateTime      @updatedAt @map("update_time")
+  deleteTime  BigInt        @default(0) @map("delete_time") @db.UnsignedBigInt
+  category    SkillCategory @relation(fields: [categoryId], references: [id])
+
+  @@map("skill")
+}
+
+model ArticleCategory {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryName String    @map("category_name") @db.VarChar(50)
+  slug         String    @db.VarChar(100)
+  description  String    @default("") @db.VarChar(255)
+  sort         Int       @default(0)
+  isEnable     Int       @default(1) @map("is_enable") @db.TinyInt
+  createTime   DateTime  @default(now()) @map("create_time")
+  updateTime   DateTime  @updatedAt @map("update_time")
+  deleteTime   BigInt    @default(0) @map("delete_time") @db.UnsignedBigInt
+  articles     Article[]
+
+  @@map("article_category")
+}
+
+model ArticleTag {
+  id          BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  tagName     String               @map("tag_name") @db.VarChar(50)
+  slug        String               @db.VarChar(100)
+  themeColor  String               @default("") @map("theme_color") @db.VarChar(20)
+  description String               @default("") @db.VarChar(255)
+  createTime  DateTime             @default(now()) @map("create_time")
+  updateTime  DateTime             @updatedAt @map("update_time")
+  deleteTime  BigInt               @default(0) @map("delete_time") @db.UnsignedBigInt
+  articles    ArticleTagRelation[]
+
+  @@map("article_tag")
+}
+
+model Article {
+  id             BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  title          String               @db.VarChar(200)
+  slug           String               @db.VarChar(200)
+  coverUrl       String               @default("") @map("cover_url") @db.VarChar(500)
+  summary        String               @default("") @db.VarChar(500)
+  content        String               @db.LongText
+  htmlContent    String?              @map("html_content") @db.LongText
+  categoryId     BigInt               @map("category_id") @db.UnsignedBigInt
+  viewCount      Int                  @default(0) @map("view_count")
+  isTop          Int                  @default(0) @map("is_top") @db.TinyInt
+  isPublish      Int                  @default(0) @map("is_publish") @db.TinyInt
+  seoKeywords    String               @default("") @map("seo_keywords") @db.VarChar(255)
+  seoDescription String               @default("") @map("seo_description") @db.VarChar(500)
+  publishTime    DateTime?            @map("publish_time")
+  createTime     DateTime             @default(now()) @map("create_time")
+  updateTime     DateTime             @updatedAt @map("update_time")
+  deleteTime     BigInt               @default(0) @map("delete_time") @db.UnsignedBigInt
+  category       ArticleCategory      @relation(fields: [categoryId], references: [id])
+  tags           ArticleTagRelation[]
+
+  @@map("article")
+}
+
+model ArticleTagRelation {
+  articleId  BigInt     @map("article_id") @db.UnsignedBigInt
+  tagId      BigInt     @map("tag_id") @db.UnsignedBigInt
+  createTime DateTime   @default(now()) @map("create_time")
+  article    Article    @relation(fields: [articleId], references: [id])
+  tag        ArticleTag @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+  @@map("article_tag_relation")
+}
+
+model Project {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  projectName String   @map("project_name") @db.VarChar(100)
+  coverUrl    String   @default("") @map("cover_url") @db.VarChar(500)
+  shortDesc   String   @map("short_desc") @db.VarChar(255)
+  fullDesc    String?  @map("full_desc") @db.LongText
+  techStack   Json?    @map("tech_stack")
+  demoUrl     String   @default("") @map("demo_url") @db.VarChar(500)
+  githubUrl   String   @default("") @map("github_url") @db.VarChar(500)
+  giteeUrl    String   @default("") @map("gitee_url") @db.VarChar(500)
+  sort        Int      @default(0)
+  isShow      Int      @default(1) @map("is_show") @db.TinyInt
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+  deleteTime  BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("project")
+}
+
+model SocialLink {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  platformName String   @map("platform_name") @db.VarChar(50)
+  iconUrl      String   @default("") @map("icon_url") @db.VarChar(500)
+  linkUrl      String   @map("link_url") @db.VarChar(500)
+  sort         Int      @default(0)
+  isShow       Int      @default(1) @map("is_show") @db.TinyInt
+  createTime   DateTime @default(now()) @map("create_time")
+  updateTime   DateTime @updatedAt @map("update_time")
+  deleteTime   BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("social_link")
+}
+
+model Message {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  nickname   String   @db.VarChar(50)
+  email      String   @db.VarChar(100)
+  content    String   @db.Text
+  contact    String   @default("") @db.VarChar(100)
+  ipAddress  String   @default("") @map("ip_address") @db.VarChar(50)
+  userAgent  String   @default("") @map("user_agent") @db.VarChar(255)
+  isRead     Int      @default(0) @map("is_read") @db.TinyInt
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+  deleteTime BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("message")
+}
+
+model Experience {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  type        Int       @db.TinyInt
+  orgName     String    @map("org_name") @db.VarChar(100)
+  position    String    @db.VarChar(100)
+  startDate   DateTime  @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  description String?   @db.Text
+  sort        Int       @default(0)
+  isShow      Int       @default(1) @map("is_show") @db.TinyInt
+  createTime  DateTime  @default(now()) @map("create_time")
+  updateTime  DateTime  @updatedAt @map("update_time")
+  deleteTime  BigInt    @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("experience")
+}
+
+model AdminUser {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  username      String    @db.VarChar(50)
+  password      String    @db.VarChar(255)
+  nickname      String    @default("") @db.VarChar(50)
+  avatar        String    @default("") @db.VarChar(500)
+  lastLoginTime DateTime? @map("last_login_time")
+  status        Int       @default(1) @db.TinyInt
+  createTime    DateTime  @default(now()) @map("create_time")
+  updateTime    DateTime  @updatedAt @map("update_time")
+  deleteTime    BigInt    @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("admin_user")
+}

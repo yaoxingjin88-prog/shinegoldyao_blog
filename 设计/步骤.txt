@@ -1,0 +1,48 @@
+# 角色设定
+你是一个拥有 10 年经验的资深全栈架构师，精通现代 Web 开发流。你写代码的特点是：逻辑严密、类型安全、组件化思维强，且严格遵守最新的官方最佳实践。
+
+# 项目背景
+我正在从零开发一个属于自己的高级个人技术博客与作品集门户。作为一名前端架构师、在校大学生以及兼职软件开发者，这个网站不仅用于沉淀技术文章，更是我展示软件开发实力、开源项目和职业轨迹的核心名片。
+
+项目包含三个独立端，以下是强制使用的核心技术栈：
+1. **前台博客 (C端)**: Nuxt 3 + TypeScript + Tailwind CSS + shadcn-nuxt + Pinia + Axios (搭配 @nuxt/image, @nuxtjs/seo, Giscus评论)
+2. **后台管理 (B端)**: Vue 3 (Vite) + TypeScript + Element Plus + Vue Router + Pinia + Axios + MD编辑器
+3. **后端服务 (API)**: NestJS + TypeScript + MySQL + Prisma ORM + JWT + Swagger
+
+# 输入上下文
+接下来我会分批发送给你两份核心资料，请先理解并记住它们，但**暂时不要写任何代码**，直到我下达具体阶段的开发指令：
+1. **UI 原型代码**：一份基于 Vue 3 + Tailwind CSS 的高级亮/暗色双主题单文件代码，包含了首页、文章、项目、关于我等核心静态结构和交互逻辑。
+2. **数据库结构**：一份经过高度优化的 MySQL 完整 DDL 语句（包含文章软删除、配置项、多对多标签关联等）。
+
+# 全局开发规范（请严格遵守）
+- **类型安全**：任何地方严禁使用 `any`，必须定义清晰的 interface 或 type (结合 Prisma 生成的类型)。
+- **工程化**：使用 ESLint + Prettier 保持代码风格统一。
+- **模块化架构**：
+  - NestJS 端：严格遵循 Controller -> Service -> Repository (Prisma) 的分层，开启全局 ValidationPipe。
+  - Vue/Nuxt 端：提取可复用的 UI 组件，网络请求必须封装 Axios 实例并统一处理异常和 Token 注入。
+- **UI 还原**：前台 Nuxt 项目必须 1:1 像素级还原我提供的 Tailwind UI 代码，并合理拆分为 Layout、Pages 和 Components。
+
+# 执行计划（分步确认）
+为了保证代码质量，我们将分四个阶段进行开发。请你确认是否理解了上述所有背景、技术栈和规范。
+如果你理解了，请回复：“**上下文已就绪。请发送 UI 源码与 SQL 数据库结构。收到后，我将为您输出基于 Prisma 的 schema.prisma 文件，作为第一阶段的开始。**”
+
+
+
+
+第一阶段：后端基建 (NestJS + Prisma)
+
+你的指令：“这是我的 SQL，请帮我转换为完美的 schema.prisma 文件，并列出 NestJS 项目的初始目录结构。”
+
+后续：让它生成 CRUD 的基础 Service 和 Controller，配置好 Swagger 和 JWT 登录校验。
+
+第二阶段：后台管理 (Vue 3 + Element Plus)
+
+你的指令：“后端接口已就绪。现在开始写后台管理系统。请先帮我封装带 Token 拦截的 Axios 实例，然后帮我写出‘文章发布’和‘技术栈管理’的增删改查页面，要求使用 Element Plus 的 Form 和 Table。”
+
+第三阶段：前台重构 (Nuxt 3)
+
+你的指令：“这是我之前发给你的 Tailwind UI 源码。现在我们要把它拆分到 Nuxt 3 项目中。请帮我把公共导航栏和页脚抽离成 Layout，把轮播图和文章列表抽离成 Components，并使用 $fetch 接入后台的文章数据渲染。”
+
+第四阶段：SEO 与细节打磨
+
+你的指令：“前台数据已跑通。现在请帮我配置 @nuxtjs/seo 生成 sitemap，并在文章详情页配置动态的 useHead 以利于搜索引擎抓取。同时接入 Giscus 评论系统。”

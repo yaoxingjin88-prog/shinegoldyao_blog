@@ -1,0 +1,815 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级技术博客UI - 暗黑版</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Vue 3 全局构建 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 引入 Lucide 图标 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 隐藏未编译的 Vue 模板，防止闪烁 */
+        [v-cloak] { display: none; }
+        /* 暗黑模式基础底色 */
+        body { background-color: #050505; color: #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak class="min-h-screen selection:bg-cyan-500/30 overflow-hidden relative flex flex-col">
+        
+        <!-- 动态背景光晕 -->
+        <div 
+            class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-600/20 blur-[120px] pointer-events-none animate-pulse" 
+            style="animation-duration: 8s"
+        ></div>
+        <div 
+            class="fixed bottom-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-cyan-600/10 blur-[150px] pointer-events-none animate-pulse" 
+            style="animation-duration: 12s; animation-delay: 2s"
+        ></div>
+
+        <!-- 导航栏 -->
+        <nav :class="[
+            'fixed w-full z-50 transition-all duration-300',
+            scrolled ? 'bg-[#050505]/80 backdrop-blur-lg border-b border-white/10 py-4 shadow-sm' : 'bg-transparent py-6'
+        ]">
+            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+                <div class="flex items-center gap-2 group cursor-pointer" @click="currentPage = 'home'">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] transition-all">
+                        <i data-lucide="terminal" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">Dev<span class="text-cyan-400">Voyage</span></span>
+                </div>
+                <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
+                    <button @click="currentPage = 'home'" :class="['transition-colors', currentPage === 'home' ? 'text-cyan-400' : 'hover:text-cyan-400']">首页</button>
+                    <button @click="currentPage = 'about'" :class="['transition-colors', currentPage === 'about' ? 'text-cyan-400' : 'hover:text-cyan-400']">关于我</button>
+                    <button @click="currentPage = 'articles'" :class="['transition-colors', currentPage === 'articles' ? 'text-cyan-400' : 'hover:text-cyan-400']">文章</button>
+                    <button @click="currentPage = 'projects'" :class="['transition-colors', currentPage === 'projects' ? 'text-cyan-400' : 'hover:text-cyan-400']">开源项目</button>
+                    <button @click="currentPage = 'contact'" :class="['transition-colors', currentPage === 'contact' ? 'text-cyan-400' : 'hover:text-cyan-400']">联系方式</button>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-[#1DA1F2] transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-6xl w-full mx-auto px-6 pt-32 pb-24 relative z-10 flex-grow">
+            
+            <!-- 首页视图 (Home View) -->
+            <template v-if="currentPage === 'home'">
+                <!-- 首屏区块 -->
+                <section class="min-h-[70vh] flex flex-col justify-center items-start mt-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-cyan-400 text-sm mb-6 animate-fade-in-up">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                        </span>
+                        探索技术的无限可能
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s;">
+                        <span class="block text-white">架构代码，</span>
+                        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 pb-2">
+                            书写未来。
+                        </span>
+                    </h1>
+                    
+                    <p class="text-lg md:text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed animate-fade-in-up" style="animation-delay: 0.2s;">
+                        你好，我是 <strong class="text-white font-medium">Alex</strong>。一名前端架构师与开源爱好者。在这里，我分享关于现代 Web 开发、高性能系统架构以及极客生活的深度思考。
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <button class="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-gray-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 group">
+                            <i data-lucide="book-open" class="w-4 h-4 group-hover:text-cyan-600 transition-colors"></i> 阅读最新文章
+                        </button>
+                        <button class="px-8 py-3 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center gap-2">
+                            <i data-lucide="mail" class="w-4 h-4"></i> 订阅更新
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 焦点推荐轮播图 (Featured Carousel) - 首屏下方 -->
+                <section 
+                    class="mb-32 relative w-full h-[450px] rounded-3xl overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] border border-white/5 group animate-fade-in-up"
+                    style="animation-delay: 0.4s;"
+                    @mouseenter="stopAutoplay"
+                    @mouseleave="startAutoplay"
+                >
+                    <!-- 轮播内容列表 -->
+                    <div 
+                        v-for="(item, index) in carouselItems" 
+                        :key="item.id"
+                        class="absolute inset-0 transition-all duration-1000 ease-in-out"
+                        :class="index === currentSlide ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0 pointer-events-none'"
+                    >
+                        <!-- 暗黑渐变背景 -->
+                        <div :class="['absolute inset-0', item.bg]"></div>
+                        <!-- 氛围光晕 -->
+                        <div :class="['absolute -right-20 -top-20 w-96 h-96 rounded-full blur-[100px] opacity-40 mix-blend-screen', item.blobColor]"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                        
+                        <!-- 文本内容层 -->
+                        <div class="absolute inset-0 p-8 md:p-16 flex flex-col justify-end">
+                            <div class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                                <span class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold text-white mb-4 border border-white/10 shadow-lg">
+                                    {{ item.tag }}
+                                </span>
+                                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight drop-shadow-lg">
+                                    {{ item.title }}
+                                </h2>
+                                <p class="text-lg text-gray-300 max-w-2xl drop-shadow-md mb-8">
+                                    {{ item.description }}
+                                </p>
+                                <button class="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold rounded-full hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 w-max group/btn">
+                                    {{ item.btnText }} <i data-lucide="arrow-right" class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 左右控制按钮 -->
+                    <button 
+                        @click="prevSlide" 
+                        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 hover:scale-110"
+                    >
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button 
+                        @click="nextSlide" 
+                        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 hover:scale-110"
+                    >
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- 底部指示器 (Dots) -->
+                    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+                        <button 
+                            v-for="(_, index) in carouselItems" 
+                            :key="index"
+                            @click="goToSlide(index)"
+                            class="transition-all duration-500 rounded-full"
+                            :class="index === currentSlide ? 'w-10 h-1.5 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'w-2 h-1.5 bg-white/30 hover:bg-white/60'"
+                            aria-label="切换轮播图"
+                        ></button>
+                    </div>
+                </section>
+
+                <!-- 技术栈徽章 (带有简介和Logo的扩容版) -->
+                <section class="mb-32">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white mb-2">核心武器库</h2>
+                            <p class="text-gray-400">支撑现代 Web 应用的高性能技术栈</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+                        <div 
+                            v-for="(tech, idx) in techStack" 
+                            :key="idx" 
+                            class="group relative bg-white/[0.02] border border-white/5 rounded-2xl p-6 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:-translate-y-1 transition-all duration-300 cursor-default overflow-hidden flex flex-col items-center justify-start text-center gap-3"
+                        >
+                            <!-- 专属品牌色的背景悬浮光晕 (暗黑模式下使用15%透明度) -->
+                            <div :class="['absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-15 transition-opacity duration-500', tech.color]"></div>
+                            
+                            <!-- 官方 Logo -->
+                            <div class="w-14 h-14 relative z-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] mb-1">
+                                <img :src="tech.logo" :alt="tech.name" class="w-11 h-11 object-contain">
+                            </div>
+                            
+                            <!-- 技术名称与简介 -->
+                            <div class="relative z-10 flex flex-col items-center">
+                                <span class="text-base font-bold text-gray-300 group-hover:text-white transition-colors mb-1.5">
+                                    {{ tech.name }}
+                                </span>
+                                <p class="text-xs text-gray-500 leading-relaxed group-hover:text-gray-400 transition-colors line-clamp-2">
+                                    {{ tech.desc }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 精选文章 -->
+                <section id="articles" class="mb-24">
+                    <div class="flex justify-between items-end mb-10">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white mb-2">深度洞察</h2>
+                            <p class="text-gray-400">近期发布的技术长文与实践总结</p>
+                        </div>
+                        <a href="#" class="hidden md:flex items-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors font-medium group">
+                            查看全部 <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div 
+                            v-for="post in posts" 
+                            :key="post.id" 
+                            class="group relative rounded-2xl bg-white/[0.02] border border-white/5 overflow-hidden hover:border-white/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(34,211,238,0.15)] flex flex-col cursor-pointer"
+                        >
+                            <div :class="['h-1 w-full opacity-50 group-hover:opacity-100 transition-opacity bg-gradient-to-r', post.gradient]"></div>
+                            
+                            <div class="h-48 w-full bg-[#0a0a0a] relative overflow-hidden p-6 flex flex-col justify-end">
+                                <div :class="['absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 bg-gradient-to-br', post.gradient]"></div>
+                                <span class="relative z-10 text-xs font-bold uppercase tracking-wider text-white/70 bg-white/10 backdrop-blur-sm self-start px-3 py-1 rounded-full mb-2">
+                                    {{ post.category }}
+                                </span>
+                            </div>
+
+                            <div class="p-6 flex-grow flex flex-col">
+                                <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                                    <time>{{ post.date }}</time>
+                                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                                    <span>{{ post.readTime }}</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3 leading-snug group-hover:text-cyan-400 transition-colors duration-300">
+                                    {{ post.title }}
+                                </h3>
+                                <p class="text-gray-400 text-sm leading-relaxed flex-grow">
+                                    {{ post.excerpt }}
+                                </p>
+                                
+                                <div class="mt-6 flex items-center text-sm font-medium text-white/50 group-hover:text-white transition-colors">
+                                    阅读全文 <i data-lucide="chevron-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform text-cyan-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="mt-8 w-full md:hidden py-4 rounded-xl border border-white/10 bg-white/5 text-white font-medium hover:bg-white/10 transition-colors">
+                        查看所有文章
+                    </button>
+                </section>
+            </template>
+
+            <!-- 关于我视图 (About View) -->
+            <template v-else-if="currentPage === 'about'">
+                <section class="min-h-[75vh] mt-10 animate-fade-in-up">
+                    <div class="flex flex-col lg:flex-row gap-16 items-start">
+                        <!-- 左侧：个人简介 -->
+                        <div class="w-full lg:w-3/5">
+                            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6">
+                                关于 <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Alex</span>
+                            </h1>
+                            <div class="space-y-6 text-gray-400 text-lg leading-relaxed">
+                                <p>
+                                    我是一名前端架构师，对构建高性能、可扩展的现代 Web 应用充满热情。在过去的 8 年里，我参与了从初创企业到世界 500 强公司的各种复杂系统设计。
+                                </p>
+                                <p>
+                                    我坚信“代码如诗”。除了日常的业务开发，我将大量的时间投入到了开源社区，致力于探索 WebAssembly、Rust 等边缘计算技术在浏览器端的极限。
+                                </p>
+                                <p>
+                                    当我不敲代码的时候，我可能在玩赛博朋克风的单机游戏，或者在冲洗自己拍摄的胶卷。
+                                </p>
+                            </div>
+
+                            <!-- 职业轨迹 (Timeline) -->
+                            <h3 class="text-2xl font-bold text-white mt-16 mb-8 flex items-center gap-3">
+                                <i data-lucide="briefcase" class="text-cyan-400"></i> 职业轨迹
+                            </h3>
+                            <div class="space-y-8 border-l-2 border-white/10 pl-6 ml-3 relative">
+                                <div class="relative">
+                                    <div class="absolute -left-[35px] top-1 w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                                    <h4 class="text-xl font-bold text-white">首席前端架构师 @ TechNova</h4>
+                                    <p class="text-sm text-cyan-400 mb-2">2023 - 至今</p>
+                                    <p class="text-gray-400 text-sm">主导公司核心 SaaS 平台的微前端架构演进，将首屏加载时间降低了 60%。引入 Rust 编写计算密集型 WebAssembly 模块。</p>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[35px] top-1 w-4 h-4 rounded-full bg-white/20 border-2 border-white/50"></div>
+                                    <h4 class="text-xl font-bold text-white">高级前端工程师 @ DataFlow</h4>
+                                    <p class="text-sm text-gray-500 mb-2">2019 - 2023</p>
+                                    <p class="text-gray-400 text-sm">负责数据可视化大屏的研发，基于 WebGL 和 Three.js 实现海量数据的流畅渲染。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：技能雷达与头像 -->
+                        <div class="w-full lg:w-2/5 space-y-8">
+                            <!-- 极客风头像占位 -->
+                            <div class="w-full aspect-square rounded-3xl bg-white/[0.02] border border-white/10 overflow-hidden relative flex items-center justify-center group">
+                                <div class="absolute inset-0 bg-gradient-to-tr from-cyan-600/20 to-purple-600/20 opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div class="absolute w-40 h-40 bg-cyan-400/30 rounded-full blur-[60px] animate-pulse"></div>
+                                <i data-lucide="user" class="w-24 h-24 text-white/30 relative z-10 group-hover:scale-110 transition-transform duration-500"></i>
+                            </div>
+
+                            <!-- 技能条 -->
+                            <div class="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+                                <h4 class="text-white font-bold mb-6">专业技能</h4>
+                                <div class="space-y-5">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2"><span class="text-gray-300">前端架构 (React/Vue)</span><span class="text-cyan-400">95%</span></div>
+                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-[95%]"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2"><span class="text-gray-300">系统底层 (Rust/WASM)</span><span class="text-purple-400">85%</span></div>
+                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-purple-400 to-pink-500 w-[85%]"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2"><span class="text-gray-300">UI/UX 设计</span><span class="text-emerald-400">80%</span></div>
+                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 w-[80%]"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <!-- 文章列表视图 (Articles View) -->
+            <template v-else-if="currentPage === 'articles'">
+                <section class="min-h-[75vh] mt-10 animate-fade-in-up">
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6">
+                            技术 <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">专栏</span>
+                        </h1>
+                        <p class="text-gray-400 text-lg">
+                            记录我踩过的坑，以及那些让我拍案叫绝的架构设计。这里有超过 50 篇深度硬核技术长文。
+                        </p>
+                    </div>
+
+                    <!-- 搜索与筛选工具栏 -->
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+                        <div class="flex flex-wrap gap-2">
+                            <button class="px-5 py-2 rounded-full bg-cyan-500/20 border border-cyan-500/50 text-cyan-400 text-sm font-medium">全部</button>
+                            <button class="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">前端工程</button>
+                            <button class="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">架构设计</button>
+                            <button class="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors">系统底层</button>
+                        </div>
+                        <div class="relative w-full md:w-64">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                            <input type="text" placeholder="搜索文章..." class="w-full pl-10 pr-4 py-2 bg-black/40 border border-white/10 rounded-full text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- 文章网格 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div 
+                            v-for="post in [...posts, ...posts]" 
+                            :key="post.id + Math.random()" 
+                            class="group relative rounded-2xl bg-white/[0.02] border border-white/5 overflow-hidden hover:border-white/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(34,211,238,0.15)] flex flex-col cursor-pointer"
+                        >
+                            <div :class="['h-1 w-full opacity-50 group-hover:opacity-100 transition-opacity bg-gradient-to-r', post.gradient]"></div>
+                            <div class="h-48 w-full bg-[#0a0a0a] relative overflow-hidden p-6 flex flex-col justify-end">
+                                <div :class="['absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 bg-gradient-to-br', post.gradient]"></div>
+                                <span class="relative z-10 text-xs font-bold uppercase tracking-wider text-white/70 bg-white/10 backdrop-blur-sm self-start px-3 py-1 rounded-full mb-2">
+                                    {{ post.category }}
+                                </span>
+                            </div>
+                            <div class="p-6 flex-grow flex flex-col">
+                                <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                                    <time>{{ post.date }}</time>
+                                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                                    <span>{{ post.readTime }}</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3 leading-snug group-hover:text-cyan-400 transition-colors duration-300">
+                                    {{ post.title }}
+                                </h3>
+                                <p class="text-gray-400 text-sm leading-relaxed flex-grow">
+                                    {{ post.excerpt }}
+                                </p>
+                                <div class="mt-6 flex items-center text-sm font-medium text-white/50 group-hover:text-white transition-colors">
+                                    阅读全文 <i data-lucide="chevron-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform text-cyan-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <!-- 开源项目视图 (Projects View) -->
+            <template v-else-if="currentPage === 'projects'">
+                <section class="min-h-[75vh] mt-10 animate-fade-in-up">
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-orange-400 text-sm mb-6">
+                            <i data-lucide="star" class="w-4 h-4"></i>
+                            创造与分享
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6">
+                            开源 <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500">项目</span>
+                        </h1>
+                        <p class="text-gray-400 text-lg">
+                            我热爱开源社区。这里列出了我主导或深度参与的一些开源项目，欢迎 Star 和提交 PR。
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div 
+                            v-for="project in projectList" 
+                            :key="project.id"
+                            class="group rounded-3xl bg-white/[0.02] border border-white/5 overflow-hidden hover:border-white/20 transition-all duration-500 flex flex-col"
+                        >
+                            <div class="h-64 w-full bg-[#050505] relative overflow-hidden flex items-center justify-center border-b border-white/5">
+                                <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+                                <div :class="['absolute w-64 h-64 rounded-full blur-[80px] opacity-30 group-hover:opacity-60 transition-opacity duration-700 mix-blend-screen', project.blobColor]"></div>
+                                <div class="relative z-10 w-20 h-20 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                                    <i :data-lucide="project.icon" :class="['w-10 h-10', project.iconColor]"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="p-8 flex-grow flex flex-col">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">{{ project.name }}</h3>
+                                    <div class="flex gap-2">
+                                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors" title="GitHub Repository">
+                                            <i data-lucide="github" class="w-5 h-5"></i>
+                                        </a>
+                                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors" title="Live Demo">
+                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-6 flex-grow">
+                                    {{ project.description }}
+                                </p>
+                                <div class="flex flex-wrap gap-2 mt-auto">
+                                    <span v-for="tag in project.tags" :key="tag" class="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs font-medium text-gray-300">
+                                        {{ tag }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <!-- 联系方式视图 (Contact View) -->
+            <template v-else-if="currentPage === 'contact'">
+                <section class="min-h-[75vh] flex flex-col md:flex-row items-center justify-between gap-16 mt-10 animate-fade-in-up">
+                    
+                    <!-- 左侧：文字信息 -->
+                    <div class="w-full md:w-1/2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-purple-400 text-sm mb-6">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            开始一个新的故事
+                        </div>
+                        <h1 class="text-5xl font-extrabold tracking-tight mb-6 text-white">
+                            建立 <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">连接</span>
+                        </h1>
+                        <p class="text-gray-400 text-lg mb-10 leading-relaxed">
+                            无论是探讨前沿的系统架构设计，开源项目的合作开发，还是单纯想喝杯咖啡聊聊极客生活，我都很期待收到你的消息。
+                        </p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
+                                    <i data-lucide="mail" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">电子邮箱</p>
+                                    <p class="text-white font-medium">your.email@example.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 group-hover:bg-white/20 transition-colors">
+                                    <i data-lucide="github" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">GitHub</p>
+                                    <p class="text-white font-medium">github.com/yourusername</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
+                                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">微信</p>
+                                    <p class="text-white font-medium">YourWeChatID</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：玻璃拟物化表单 -->
+                    <div class="w-full md:w-1/2">
+                        <div class="bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
+                            <form @submit.prevent class="space-y-5">
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-gray-300">阁下尊姓大名</label>
+                                    <input type="text" placeholder="John Doe" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-gray-300">您的邮箱</label>
+                                    <input type="email" placeholder="john@example.com" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-gray-300">有什么想交流的？</label>
+                                    <textarea rows="4" placeholder="分享你的奇思妙想..." class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all resize-none"></textarea>
+                                </div>
+                                <button class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold tracking-wide hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.02] transition-all duration-300">
+                                    发送讯息
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </section>
+            </template>
+
+        </main>
+
+        <!-- 多列大页脚 (Fat Footer) -->
+        <footer class="border-t border-white/5 bg-[#030303] relative z-10 pt-16 pb-8 mt-auto">
+            <div class="max-w-6xl mx-auto px-6">
+                <!-- 核心区域：三列布局 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                    
+                    <!-- 关于博客 -->
+                    <div class="space-y-4 md:col-span-1">
+                        <div class="flex items-center gap-2 cursor-pointer" @click="currentPage = 'home'">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                                <i data-lucide="terminal" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <span class="text-xl font-bold text-white">Dev<span class="text-cyan-400">Voyage</span></span>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed mt-4 pr-4">
+                            一个专注于现代前端架构、系统底层原理与极客生活方式的个人技术博客。在这里，架构代码，书写未来。
+                        </p>
+                    </div>
+
+                    <!-- 快速链接 -->
+                    <div>
+                        <h3 class="text-white font-bold tracking-wide mb-5">快速链接</h3>
+                        <ul class="space-y-3 text-sm text-gray-500">
+                            <li><button @click="currentPage = 'home'" class="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300">首页</button></li>
+                            <li><button @click="currentPage = 'about'" class="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300">关于我</button></li>
+                            <li><button @click="currentPage = 'articles'" class="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300">技术专栏</button></li>
+                            <li><button @click="currentPage = 'projects'" class="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300">开源项目</button></li>
+                            <li><button @click="currentPage = 'contact'" class="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300">联系交流</button></li>
+                        </ul>
+                    </div>
+
+                    <!-- 联系方式 -->
+                    <div>
+                        <h3 class="text-white font-bold tracking-wide mb-5">联系方式</h3>
+                        <ul class="space-y-4 text-sm text-gray-500">
+                            <li class="flex items-center gap-3 group">
+                                <div class="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
+                                    <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <a href="mailto:your.email@example.com" class="hover:text-cyan-400 transition-colors">your.email@example.com</a>
+                            </li>
+                            <li class="flex items-center gap-3 group">
+                                <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors">
+                                    <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <a href="#" class="hover:text-white transition-colors">github.com/yourusername</a>
+                            </li>
+                            <li class="flex items-center gap-3 group">
+                                <div class="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
+                                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>WeChat: YourWeChatID</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- 底部版权与社交图标 -->
+                <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-gray-500 text-sm">
+                        © 2026 Alex. All rights reserved. Crafted with Vue 3 & Tailwind.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"><i data-lucide="rss" class="w-4 h-4"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted, nextTick } = Vue;
+
+        const App = {
+            setup() {
+                const scrolled = ref(false);
+                const currentPage = ref('home'); 
+
+                // 监听滚动
+                const handleScroll = () => {
+                    scrolled.value = window.scrollY > 50;
+                };
+
+                // 技术栈数据 (暗黑版适配：将黑色Logo替换为白色以确保可见度)
+                const techStack = [
+                    { name: 'HTML5', desc: '构建现代 Web 应用的坚实骨架与语义化基础。', logo: 'https://cdn.simpleicons.org/html5/E34F26', color: 'from-[#E34F26] to-orange-500' },
+                    { name: 'CSS3', desc: '赋予网页灵魂的视觉样式与响应式布局引擎。', logo: 'https://cdn.simpleicons.org/css3/1572B6', color: 'from-[#1572B6] to-blue-500' },
+                    { name: 'JavaScript', desc: '驱动 Web 复杂交互与动态逻辑的核心脚本语言。', logo: 'https://cdn.simpleicons.org/javascript/F7DF1E', color: 'from-[#F7DF1E] to-yellow-500' },
+                    { name: 'Vue 3', desc: '渐进式框架，构建丝滑且易维护的用户界面。', logo: 'https://cdn.simpleicons.org/vuedotjs/4FC08D', color: 'from-[#4FC08D] to-green-500' },
+                    { name: 'Nuxt', desc: '基于 Vue 的直观 Web 框架，轻松实现 SSR 和 SSG。', logo: 'https://cdn.simpleicons.org/nuxtdotjs/00DC82', color: 'from-[#00DC82] to-emerald-500' },
+                    { name: 'UniApp', desc: '基于 Vue 的跨平台前端框架，一套代码多端发布。', logo: 'https://cdn.simpleicons.org/vuedotjs/2B9C5A', color: 'from-[#2B9C5A] to-emerald-600' },
+                    { name: 'TypeScript', desc: '静态类型检查，保障大型复杂工程的稳定性。', logo: 'https://cdn.simpleicons.org/typescript/3178C6', color: 'from-[#3178C6] to-blue-500' },
+                    { name: 'SCSS', desc: '成熟、稳定且强大的专业级 CSS 扩展语言。', logo: 'https://cdn.simpleicons.org/sass/CC6699', color: 'from-[#CC6699] to-pink-500' },
+                    { name: 'Tailwind CSS', desc: '实用优先的原子化 CSS，快速构建定制化 UI。', logo: 'https://cdn.simpleicons.org/tailwindcss/06B6D4', color: 'from-[#06B6D4] to-cyan-500' },
+                    { name: 'Element Plus', desc: '基于 Vue 3，面向设计师和开发者的优秀组件库。', logo: 'https://cdn.simpleicons.org/element/409EFF', color: 'from-[#409EFF] to-blue-400' },
+                    { name: 'Axios', desc: '基于 Promise 的优雅 HTTP 客户端，轻松处理通信。', logo: 'https://cdn.simpleicons.org/axios/5A29E4', color: 'from-[#5A29E4] to-purple-500' },
+                    { name: 'Express', desc: '基于 Node.js 的极简且灵活的后端 Web 框架。', logo: 'https://cdn.simpleicons.org/express/white', color: 'from-gray-400 to-gray-600' }, // 暗色模式用白色Logo
+                    { name: 'MySQL', desc: '世界上最流行的开源关系型数据库管理系统。', logo: 'https://cdn.simpleicons.org/mysql/4479A1', color: 'from-[#4479A1] to-blue-600' },
+                    { name: 'Rust', desc: '内存安全与极致性能的现代化系统级语言。', logo: 'https://cdn.simpleicons.org/rust/white', color: 'from-gray-400 to-gray-600' }, // 暗色模式用白色Logo
+                    { name: 'WebAssembly', desc: '打破浏览器性能瓶颈的底层高性能字节码。', logo: 'https://cdn.simpleicons.org/webassembly/654FF0', color: 'from-[#654FF0] to-purple-500' }
+                ];
+
+                // --- 轮播图相关逻辑 ---
+                const currentSlide = ref(0);
+                let slideInterval = null;
+
+                const carouselItems = ref([
+                    {
+                        id: 1,
+                        title: '重构未来：2026 前端架构趋势',
+                        description: '探索微前端、Edge Computing 与 AI 辅助编程如何重塑我们的开发工作流。',
+                        bg: 'bg-gradient-to-br from-[#0a0f1c] to-[#050505]',
+                        blobColor: 'bg-cyan-600',
+                        tag: '年度报告',
+                        btnText: '探索趋势'
+                    },
+                    {
+                        id: 2,
+                        title: 'Rust & WebAssembly 性能优化实战',
+                        description: '突破浏览器性能极限，将核心计算模块下沉至系统级语言，实现 400% 性能提升。',
+                        bg: 'bg-gradient-to-br from-[#1a0f0a] to-[#050505]',
+                        blobColor: 'bg-orange-600',
+                        tag: '硬核实战',
+                        btnText: '查阅源码'
+                    },
+                    {
+                        id: 3,
+                        title: '全栈 Serverless：拥抱边缘计算',
+                        description: '告别繁琐的运维工作，将应用部署在全球边缘节点，实现真正的毫秒级响应。',
+                        bg: 'bg-gradient-to-br from-[#100a1a] to-[#050505]',
+                        blobColor: 'bg-purple-600',
+                        tag: '架构演进',
+                        btnText: '阅读专栏'
+                    }
+                ]);
+
+                const nextSlide = () => {
+                    currentSlide.value = (currentSlide.value + 1) % carouselItems.value.length;
+                };
+
+                const prevSlide = () => {
+                    currentSlide.value = currentSlide.value === 0 ? carouselItems.value.length - 1 : currentSlide.value - 1;
+                };
+
+                const goToSlide = (index) => {
+                    currentSlide.value = index;
+                };
+
+                const startAutoplay = () => {
+                    slideInterval = setInterval(nextSlide, 5000);
+                };
+
+                const stopAutoplay = () => {
+                    if (slideInterval) clearInterval(slideInterval);
+                };
+                // --- 结束 轮播图逻辑 ---
+
+                // --- 开源项目数据 ---
+                const projectList = ref([
+                    {
+                        id: 1,
+                        name: 'Vortex.js',
+                        description: '一个基于 WebGL 的超高性能 3D 粒子系统引擎。支持百万级粒子在浏览器中的 60fps 流畅渲染，专为数据可视化大屏设计。',
+                        icon: 'cpu',
+                        iconColor: 'text-cyan-400', 
+                        blobColor: 'bg-cyan-500',
+                        tags: ['WebGL', 'TypeScript', 'Three.js', 'GLSL']
+                    },
+                    {
+                        id: 2,
+                        name: 'RustWasm-Crypto',
+                        description: '使用 Rust 编写，编译为 WebAssembly 的前端加密货币核心算法库。将常见的哈希和非对称加密性能在浏览器端提升了 5 倍。',
+                        icon: 'shield',
+                        iconColor: 'text-purple-400',
+                        blobColor: 'bg-purple-500',
+                        tags: ['Rust', 'WebAssembly', 'Cryptography']
+                    },
+                    {
+                        id: 3,
+                        name: 'Glass-UI',
+                        description: '专为极客和 Web3 项目打造的现代 Vue 3 UI 组件库。内置顶级玻璃拟物化设计、发光效果以及自适应主题。',
+                        icon: 'layout',
+                        iconColor: 'text-rose-400',
+                        blobColor: 'bg-rose-500',
+                        tags: ['Vue 3', 'Tailwind CSS', 'Component Library']
+                    },
+                    {
+                        id: 4,
+                        name: 'EdgeServe CLI',
+                        description: '一键将你的静态站点和 Serverless 函数部署到全球 CDN 边缘节点的命令行工具。彻底告别繁琐的 Nginx 配置。',
+                        icon: 'globe',
+                        iconColor: 'text-emerald-400',
+                        blobColor: 'bg-emerald-500',
+                        tags: ['Node.js', 'CLI', 'Edge Computing', 'Serverless']
+                    }
+                ]);
+
+                // 监听页面切换，重新渲染图标
+                Vue.watch(currentPage, () => {
+                    nextTick(() => {
+                        lucide.createIcons();
+                        // 切换页面时回到顶部
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+                // 模拟博客文章数据
+                const posts = ref([
+                    {
+                        id: 1,
+                        title: '深入理解 Vue 3.4 响应式系统底层优化',
+                        excerpt: '探讨最新 Vue 版本中解析器和响应式引擎的性能提升，以及如何利用 defineModel 构建丝滑的组件。',
+                        date: '2026-03-28',
+                        readTime: '8 min read',
+                        category: '前端工程',
+                        gradient: 'from-emerald-500 to-cyan-400'
+                    },
+                    {
+                        id: 2,
+                        title: 'Rust 在现代 WebAssembly 中的高性能实践',
+                        excerpt: '通过重写核心计算模块，我们将浏览器端的数据处理速度提升了 400%。本文揭秘背后的工程实践。',
+                        date: '2026-03-15',
+                        readTime: '12 min read',
+                        category: '系统底层',
+                        gradient: 'from-orange-500 to-red-500'
+                    },
+                    {
+                        id: 3,
+                        title: '构建高可用分布式系统的十个反模式',
+                        excerpt: '在踩过无数坑之后，我总结了这些在微服务架构设计中绝对不能碰的危险设计模式。',
+                        date: '2026-02-22',
+                        readTime: '15 min read',
+                        category: '架构设计',
+                        gradient: 'from-purple-500 to-pink-500'
+                    }
+                ]);
+
+                onMounted(() => {
+                    window.addEventListener('scroll', handleScroll);
+                    startAutoplay(); 
+                    
+                    // 确保 Vue DOM 渲染完毕后，初始化 Lucide 图标
+                    nextTick(() => {
+                        lucide.createIcons();
+                    });
+                });
+
+                onUnmounted(() => {
+                    window.removeEventListener('scroll', handleScroll);
+                    stopAutoplay(); 
+                });
+
+                return {
+                    scrolled,
+                    currentPage,
+                    techStack,
+                    posts,
+                    carouselItems,
+                    projectList,
+                    currentSlide,
+                    nextSlide,
+                    prevSlide,
+                    goToSlide,
+                    startAutoplay,
+                    stopAutoplay
+                };
+            }
+        };
+
+        createApp(App).mount('#app');
+    </script>
+</body>
+</html>
