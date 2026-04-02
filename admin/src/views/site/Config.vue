@@ -20,10 +20,11 @@ const configs = reactive<Record<string, string>>({})
 const loading = ref(false)
 const configLabels: Record<string, string> = {
   site_title: '网站标题', site_subtitle: '网站副标题', site_subtitle_highlight: '副标题高亮',
-  home_intro: '首页简介', home_description: '个人描述',
+  home_intro: '首页简介标签', home_description: '首页个人描述',
+  about_name: '关于我 - 名字', about_intro: '关于我 - 简介',
   avatar: '个人头像URL', seo_keywords: 'SEO关键词', seo_description: 'SEO描述',
 }
-const textareaKeys = ['seo_description', 'home_intro', 'home_description']
+const textareaKeys = ['seo_description', 'home_intro', 'home_description', 'about_intro']
 
 async function handleSave() {
   loading.value = true

@@ -22,7 +22,9 @@ model Banner {
   id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   title       String   @default("") @db.VarChar(100)
   description String   @default("") @db.VarChar(255)
-  imageUrl    String   @map("image_url") @db.VarChar(500)
+  imageUrl    String   @default("") @map("image_url") @db.VarChar(500)
+  bgColor     String   @default("") @map("bg_color") @db.VarChar(200)
+  bgColorDark String   @default("") @map("bg_color_dark") @db.VarChar(200)
   linkUrl     String   @default("#") @map("link_url") @db.VarChar(500)
   sort        Int      @default(0)
   isEnable    Int      @default(1) @map("is_enable") @db.TinyInt

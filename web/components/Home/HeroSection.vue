@@ -1,29 +1,26 @@
 <template>
-  <section class="relative min-h-screen flex items-center pt-16 overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"></div>
-    <div class="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style="animation-delay:2s"></div>
+  <section class="relative flex items-center overflow-hidden pt-24 pb-8 md:pt-28 md:pb-4">
     <div class="relative z-10 max-w-6xl mx-auto px-6 w-full">
       <div class="max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-8">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6 animate-fade-in-up">
           <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
           {{ config?.home_intro || '全栈开发者 / 开源爱好者 / 技术博主' }}
         </div>
-        <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight">
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s;">
           {{ config?.site_subtitle || '架构代码，' }}<br />
           <span class="gradient-text">{{ config?.site_subtitle_highlight || '书写未来。' }}</span>
         </h1>
-        <p class="text-lg text-gray-500 dark:text-gray-400 mb-10 max-w-2xl leading-relaxed">
+        <p class="text-base md:text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-2xl leading-relaxed min-h-[3rem] animate-fade-in-up" style="animation-delay: 0.2s;">
           <span class="typewriter-text">{{ displayedText }}<span class="typewriter-cursor">|</span></span>
         </p>
-        <div class="flex items-center gap-4">
-          <NuxtLink to="/articles" class="inline-flex items-center gap-2 px-8 py-3 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 text-white rounded-full font-medium transition-all hover:shadow-lg">
+        <div class="flex items-center gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+          <NuxtLink to="/articles" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 text-white rounded-full font-medium transition-all hover:shadow-lg">
             <BookOpen class="w-4 h-4" />
             阅读最新文章
           </NuxtLink>
-          <NuxtLink to="/contact" class="inline-flex items-center gap-2 px-8 py-3 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 rounded-full font-medium transition-colors">
+          <NuxtLink to="/contact" class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 rounded-full font-medium transition-colors">
             <Mail class="w-4 h-4" />
-            联系方式
+            订阅更新
           </NuxtLink>
         </div>
       </div>

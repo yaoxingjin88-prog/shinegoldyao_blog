@@ -9,21 +9,27 @@ export class ExperienceService {
   findAll() {
     return this.prisma.experience.findMany({
       where: { deleteTime: 0n, isShow: 1 },
-      orderBy: [{ sort: 'desc' }, { startDate: 'desc' }],
+      orderBy: [{ sort: 'asc' }, { startDate: 'desc' }],
     });
   }
 
   findAllAdmin() {
-    return this.prisma.experience.findMany({ where: { deleteTime: 0n }, orderBy: [{ sort: 'desc' }] });
+    return this.prisma.experience.findMany({ where: { deleteTime: 0n }, orderBy: [{ sort: 'asc' }] });
   }
 
   create(dto: CreateExperienceDto) {
-    return this.prisma.experience.create({ data: dto as any });
+    const data: any = { ...dto }
+    if (data.startDate) data.startDate = new Date(data.startDate)
+    if (data.endDate) data.endDate = new Date(data.endDate)
+    return this.prisma.experience.create({ data })
   }
 
   async update(id: number, dto: UpdateExperienceDto) {
     await this.findOneOrFail(id);
-    return this.prisma.experience.update({ where: { id: BigInt(id) }, data: dto as any });
+    const data: any = { ...dto }
+    if (data.startDate) data.startDate = new Date(data.startDate)
+    if (data.endDate) data.endDate = new Date(data.endDate)
+    return this.prisma.experience.update({ where: { id: BigInt(id) }, data })
   }
 
   async remove(id: number) {

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBannerDto {
@@ -11,9 +11,17 @@ export class CreateBannerDto {
   @IsOptional() @IsString()
   description?: string;
 
-  @ApiProperty({ description: '图片地址' })
-  @IsNotEmpty() @IsString()
-  imageUrl: string;
+  @ApiPropertyOptional({ description: '图片地址' })
+  @IsOptional() @IsString()
+  imageUrl?: string;
+
+  @ApiPropertyOptional({ description: '渐变背景色（亮色模式）' })
+  @IsOptional() @IsString()
+  bgColor?: string;
+
+  @ApiPropertyOptional({ description: '渐变背景色（暗黑模式）' })
+  @IsOptional() @IsString()
+  bgColorDark?: string;
 
   @ApiPropertyOptional({ description: '跳转链接', default: '#' })
   @IsOptional() @IsString()
