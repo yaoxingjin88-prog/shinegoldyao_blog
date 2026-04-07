@@ -70,6 +70,15 @@ export class ArticleService {
     return { list: list.map(this.serialize), total, page, pageSize };
   }
 
+  async findById(id: number) {
+    const article = await this.prisma.article.findFirst({
+      where: { id: BigInt(id), deleteTime: 0n },
+      include: { category: true, tags: { include: { tag: true } } },
+    });
+    if (!article) throw new NotFoundException('文章不存在');
+    return this.serialize(article);
+  }
+
   async findBySlug(slug: string) {
     const article = await this.prisma.article.findFirst({
       where: { slug, deleteTime: 0n, isPublish: 1 },

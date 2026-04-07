@@ -23,6 +23,8 @@ const configLabels: Record<string, string> = {
   home_intro: '首页简介标签', home_description: '首页个人描述',
   about_name: '关于我 - 名字', about_intro: '关于我 - 简介',
   avatar: '个人头像URL', seo_keywords: 'SEO关键词', seo_description: 'SEO描述',
+  code_skills: '代码展示 - 技能列表', code_goal: '代码展示 - 目标', code_log: '代码展示 - 日志',
+  code_comment_1: '代码展示 - 注释1', code_comment_2: '代码展示 - 注释2',
 }
 const textareaKeys = ['seo_description', 'home_intro', 'home_description', 'about_intro']
 

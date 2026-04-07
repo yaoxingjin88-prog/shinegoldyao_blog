@@ -23,6 +23,13 @@ export class ArticleController {
     return this.articleService.findAllAdmin(query);
   }
 
+  @ApiBearerAuth()
+  @Get('admin/:id')
+  @ApiOperation({ summary: '管理端获取文章详情（按ID）' })
+  findByIdAdmin(@Param('id') id: string) {
+    return this.articleService.findById(+id);
+  }
+
   @Public()
   @Get(':slug')
   @ApiOperation({ summary: '获取文章详情（按slug，自增阅读数）' })

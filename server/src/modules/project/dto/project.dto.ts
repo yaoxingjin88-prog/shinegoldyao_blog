@@ -11,6 +11,7 @@ export class CreateProjectDto {
   @ApiPropertyOptional() @IsOptional() @IsString() demoUrl?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() githubUrl?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() giteeUrl?: string;
+  @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() type?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() sort?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() isShow?: number;
 }

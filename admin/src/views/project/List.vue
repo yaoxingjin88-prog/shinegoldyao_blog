@@ -6,6 +6,7 @@
     </div>
     <el-table :data="list" border stripe>
       <el-table-column prop="projectName" label="项目名称" min-width="150" />
+      <el-table-column label="类型" width="100" align="center"><template #default="{ row }"><el-tag :type="row.type === 1 ? 'warning' : 'primary'" size="small">{{ row.type === 1 ? '推荐' : '我的' }}</el-tag></template></el-table-column>
       <el-table-column prop="shortDesc" label="简介" min-width="200" show-overflow-tooltip />
       <el-table-column prop="sort" label="排序" width="70" align="center" />
       <el-table-column label="显示" width="70" align="center"><template #default="{ row }"><el-tag :type="row.isShow ? 'success' : 'info'" size="small">{{ row.isShow ? '是' : '否' }}</el-tag></template></el-table-column>

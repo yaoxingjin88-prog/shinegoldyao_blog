@@ -1,70 +1,76 @@
 <template>
   <div class="pt-24 pb-16">
     <div class="max-w-6xl mx-auto px-6">
-      <h1 class="text-4xl font-bold mb-4">文章</h1>
-      <p class="text-gray-500 dark:text-gray-400 mb-10">分享技术见解与实践经验</p>
-
-      <div class="flex flex-col md:flex-row gap-4 mb-8">
-        <input v-model="keyword" type="text" placeholder="搜索文章..." class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" @keyup.enter="loadData" />
-        <select v-model="selectedCategory" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" @change="loadData">
-          <option value="">全部分类</option>
-          <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.categoryName }}</option>
-        </select>
+      <!-- 页面头部 -->
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6">
+          技术 <span class="bg-gradient-to-r from-cyan-600 to-emerald-500 bg-clip-text text-transparent">专栏</span>
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">
+          记录我踩过的坑，以及那些让我拍案叫绝的架构设计。
+        </p>
       </div>
 
-      <div class="flex flex-wrap gap-2 mb-8">
-        <button v-for="t in tags" :key="t.id" :class="['px-3 py-1.5 rounded-full text-sm transition-colors', selectedTag === t.id ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700']" @click="selectTag(t.id)">
-          {{ t.tagName }}
-        </button>
+      <!-- 分类筛选 + 搜索 -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+        <div class="flex flex-wrap gap-2">
+          <button
+            :class="['px-5 py-2 rounded-full text-sm font-medium transition-all shadow-sm', !selectedCategory ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800']"
+            @click="selectedCategory = ''; page = 1; loadData()"
+          >全部</button>
+          <button
+            v-for="c in categories"
+            :key="c.id"
+            :class="['px-5 py-2 rounded-full text-sm font-medium transition-all shadow-sm', selectedCategory === c.id ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800']"
+            @click="selectedCategory = selectedCategory === c.id ? '' : c.id; page = 1; loadData()"
+          >{{ c.categoryName }}</button>
+        </div>
+        <div class="relative w-full md:w-64">
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input v-model="keyword" type="text" placeholder="搜索文章..." class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all shadow-sm" @keyup.enter="page = 1; loadData()" />
+        </div>
       </div>
 
-      <div v-if="articles.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 文章网格 -->
+      <div v-if="articles.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <ArticleCard v-for="article in articles" :key="article.id" :article="article" />
       </div>
       <div v-else class="text-center py-20 text-gray-400">暂无文章</div>
 
-      <div v-if="total > pageSize" class="flex justify-center mt-10 gap-2">
-        <button :disabled="page <= 1" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50" @click="page--; loadData()">上一页</button>
+      <!-- 分页 -->
+      <div v-if="total > pageSize" class="flex justify-center mt-12 gap-2">
+        <button :disabled="page <= 1" class="px-5 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-sm disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" @click="page--; loadData()">上一页</button>
         <span class="px-4 py-2 text-sm text-gray-500">{{ page }} / {{ Math.ceil(total / pageSize) }}</span>
-        <button :disabled="page >= Math.ceil(total / pageSize)" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50" @click="page++; loadData()">下一页</button>
+        <button :disabled="page >= Math.ceil(total / pageSize)" class="px-5 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-sm disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" @click="page++; loadData()">下一页</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const { getArticles, getCategories, getTags } = useApi()
+import { Search } from 'lucide-vue-next'
+
+const { getArticles, getCategories } = useApi()
 
 const keyword = ref('')
 const selectedCategory = ref('')
-const selectedTag = ref('')
 const page = ref(1)
 const pageSize = 9
 const total = ref(0)
 const articles = ref<any[]>([])
 const categories = ref<any[]>([])
-const tags = ref<any[]>([])
 
 async function loadData() {
   const params: Record<string, any> = { page: page.value, pageSize }
   if (keyword.value) params.keyword = keyword.value
   if (selectedCategory.value) params.categoryId = selectedCategory.value
-  if (selectedTag.value) params.tagId = selectedTag.value
   const res = await getArticles(params)
   articles.value = res?.list || []
   total.value = res?.total || 0
 }
 
-function selectTag(id: string) {
-  selectedTag.value = selectedTag.value === id ? '' : id
-  page.value = 1
-  loadData()
-}
-
-const [cats, tgs] = await Promise.all([getCategories().catch(() => []), getTags().catch(() => [])])
-categories.value = cats || []
-tags.value = tgs || []
+categories.value = await getCategories().catch(() => []) || []
 await loadData()
 
-useHead({ title: '文章 - DevVoyage' })
+useHead({ title: '技术专栏 - DevVoyage' })
 </script>

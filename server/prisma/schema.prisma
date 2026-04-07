@@ -133,6 +133,7 @@ model ArticleTagRelation {
 model Project {
   id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   projectName String   @map("project_name") @db.VarChar(100)
+  type        Int      @default(0) @db.TinyInt
   coverUrl    String   @default("") @map("cover_url") @db.VarChar(500)
   shortDesc   String   @map("short_desc") @db.VarChar(255)
   fullDesc    String?  @map("full_desc") @db.LongText
@@ -179,6 +180,25 @@ model Message {
   @@map("message")
 }
 
+model Comment {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  articleId  BigInt   @map("article_id") @db.UnsignedBigInt
+  parentId   BigInt   @default(0) @map("parent_id") @db.UnsignedBigInt
+  nickname   String   @db.VarChar(50)
+  email      String   @db.VarChar(100)
+  content    String   @db.Text
+  avatar     String   @default("") @db.VarChar(500)
+  website    String   @default("") @db.VarChar(200)
+  ipAddress  String   @default("") @map("ip_address") @db.VarChar(50)
+  userAgent  String   @default("") @map("user_agent") @db.VarChar(255)
+  isApproved Int      @default(1) @map("is_approved") @db.TinyInt
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+  deleteTime BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("comment")
+}
+
 model Experience {
   id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   type        Int       @db.TinyInt
@@ -194,6 +214,22 @@ model Experience {
   deleteTime  BigInt    @default(0) @map("delete_time") @db.UnsignedBigInt
 
   @@map("experience")
+}
+
+model Music {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String   @db.VarChar(100)
+  artist     String   @default("") @db.VarChar(100)
+  url        String   @db.VarChar(500)
+  coverUrl   String   @default("") @map("cover_url") @db.VarChar(500)
+  gradient   String   @default("") @db.VarChar(200)
+  sort       Int      @default(0)
+  isEnable   Int      @default(1) @map("is_enable") @db.TinyInt
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+  deleteTime BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+
+  @@map("music")
 }
 
 model AdminUser {

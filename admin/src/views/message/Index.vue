@@ -13,7 +13,7 @@
       <el-table-column prop="contact" label="联系方式" width="120" />
       <el-table-column prop="ipAddress" label="IP" width="120" />
       <el-table-column label="状态" width="80" align="center"><template #default="{ row }"><el-tag :type="row.isRead ? 'success' : 'warning'" size="small">{{ row.isRead ? '已读' : '未读' }}</el-tag></template></el-table-column>
-      <el-table-column prop="createTime" label="时间" width="170" />
+      <el-table-column label="时间" width="170"><template #default="{ row }">{{ formatDate(row.createTime) }}</template></el-table-column>
       <el-table-column label="操作" width="140">
         <template #default="{ row }">
           <el-button v-if="!row.isRead" link type="primary" @click="handleRead(row.id)">标记已读</el-button>
@@ -39,6 +39,17 @@ async function loadData() {
   const res = await messageApi.list(query)
   list.value = res.list; total.value = res.total
 }
+function formatDate(d: string) {
+  if (!d) return ''
+  const date = new Date(d)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${day} ${h}:${min}`
+}
+
 async function handleRead(id: string) { await messageApi.markRead(id); ElMessage.success('已标记'); loadData() }
 async function handleDelete(id: string) { await messageApi.remove(id); ElMessage.success('删除成功'); loadData() }
 onMounted(loadData)

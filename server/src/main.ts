@@ -24,9 +24,8 @@ async function bootstrap() {
     }),
   );
 
-  const corsOrigins = config.get<string[]>('corsOrigins') || ['http://localhost:3001', 'http://localhost:3002'];
   app.enableCors({
-    origin: corsOrigins,
+    origin: true,
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });

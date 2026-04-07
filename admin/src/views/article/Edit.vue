@@ -92,14 +92,24 @@ onMounted(async () => {
   tags.value = tgs || []
   if (isEdit.value) {
     try {
-      const article = await articleApi.list({ page: 1, pageSize: 1 })
-      if (article?.list?.[0]) {
-        const a = article.list.find((item: any) => String(item.id) === String(route.params.id))
-        if (a) {
-          Object.assign(form, { title: a.title, slug: a.slug, coverUrl: a.coverUrl, summary: a.summary, content: a.content, categoryId: a.categoryId, isTop: a.isTop, seoKeywords: a.seoKeywords, seoDescription: a.seoDescription, isPublish: a.isPublish, tagIds: a.tags?.map((t: any) => t.tag?.id).filter(Boolean) || [] })
-        }
+      const a = await articleApi.getById(route.params.id as string)
+      if (a) {
+        Object.assign(form, { title: a.title, slug: a.slug, coverUrl: a.coverUrl, summary: a.summary, content: a.content, categoryId: a.categoryId ? String(a.categoryId) : undefined, isTop: a.isTop, seoKeywords: a.seoKeywords || '', seoDescription: a.seoDescription || '', isPublish: a.isPublish, tagIds: a.tags?.map((t: any) => String(t.tag?.id)).filter(Boolean) || [] })
       }
     } catch { /* ignore */ }
+  }
+  // 从Gitee导入的数据
+  if (route.query.from === 'gitee') {
+    const raw = sessionStorage.getItem('gitee_import')
+    if (raw) {
+      try {
+        const imported = JSON.parse(raw)
+        form.title = imported.title || ''
+        form.slug = imported.slug || ''
+        form.content = imported.content || ''
+      } catch { /* ignore */ }
+      sessionStorage.removeItem('gitee_import')
+    }
   }
 })
 </script>

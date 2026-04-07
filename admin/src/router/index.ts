@@ -24,6 +24,8 @@ const router = createRouter({
         { path: 'project/edit/:id', component: () => import('../views/project/Edit.vue') },
         { path: 'message', component: () => import('../views/message/Index.vue') },
         { path: 'experience', component: () => import('../views/experience/Index.vue') },
+        { path: 'social', component: () => import('../views/social/Index.vue') },
+        { path: 'music', component: () => import('../views/music/Index.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' },

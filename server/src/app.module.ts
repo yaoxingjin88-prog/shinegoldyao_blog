@@ -19,7 +19,9 @@ import { TagModule } from './modules/tag/tag.module';
 import { ProjectModule } from './modules/project/project.module';
 import { SocialModule } from './modules/social/social.module';
 import { MessageModule } from './modules/message/message.module';
+import { CommentModule } from './modules/comment/comment.module';
 import { ExperienceModule } from './modules/experience/experience.module';
+import { MusicModule } from './modules/music/music.module';
 import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
@@ -49,7 +51,9 @@ import { UploadModule } from './modules/upload/upload.module';
     ProjectModule,
     SocialModule,
     MessageModule,
+    CommentModule,
     ExperienceModule,
+    MusicModule,
     UploadModule,
   ],
   providers: [

@@ -3,6 +3,12 @@
     <el-page-header @back="$router.back()" :content="isEdit ? '编辑项目' : '新增项目'" style="margin-bottom:20px" />
     <el-form :model="form" label-width="100px" style="max-width:700px">
       <el-form-item label="项目名称"><el-input v-model="form.projectName" /></el-form-item>
+      <el-form-item label="项目类型">
+        <el-radio-group v-model="form.type">
+          <el-radio :value="0">我的项目</el-radio>
+          <el-radio :value="1">推荐项目</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item label="简介"><el-input v-model="form.shortDesc" type="textarea" :rows="2" /></el-form-item>
       <el-form-item label="详细描述"><el-input v-model="form.fullDesc" type="textarea" :rows="4" /></el-form-item>
       <el-form-item label="技术栈">
@@ -29,7 +35,7 @@ const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
 const isEdit = computed(() => !!route.params.id)
-const form = reactive({ projectName: '', shortDesc: '', fullDesc: '', techStack: [] as string[], coverUrl: '', demoUrl: '', githubUrl: '', giteeUrl: '', sort: 0, isShow: 1 })
+const form = reactive({ projectName: '', type: 0, shortDesc: '', fullDesc: '', techStack: [] as string[], coverUrl: '', demoUrl: '', githubUrl: '', giteeUrl: '', sort: 0, isShow: 1 })
 
 async function handleSubmit() {
   loading.value = true
@@ -44,7 +50,7 @@ onMounted(async () => {
   if (isEdit.value) {
     const projects = await projectApi.list()
     const p = (projects as any[])?.find((item: any) => String(item.id) === String(route.params.id))
-    if (p) Object.assign(form, { projectName: p.projectName, shortDesc: p.shortDesc, fullDesc: p.fullDesc || '', techStack: p.techStack || [], coverUrl: p.coverUrl, demoUrl: p.demoUrl, githubUrl: p.githubUrl, giteeUrl: p.giteeUrl, sort: p.sort, isShow: p.isShow })
+    if (p) Object.assign(form, { projectName: p.projectName, type: p.type || 0, shortDesc: p.shortDesc, fullDesc: p.fullDesc || '', techStack: p.techStack || [], coverUrl: p.coverUrl, demoUrl: p.demoUrl, githubUrl: p.githubUrl, giteeUrl: p.giteeUrl, sort: p.sort, isShow: p.isShow })
   }
 })
 </script>

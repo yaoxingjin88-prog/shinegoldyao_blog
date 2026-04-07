@@ -23,5 +23,9 @@ export function useApi() {
     getExperiences: () => $api<any[]>('/experience'),
     submitMessage: (data: { nickname: string; email: string; content: string; contact?: string }) =>
       $api('/message', { method: 'POST', body: data }),
+    getComments: (articleId: number | string) => $api<any[]>(`/comment/article/${articleId}`),
+    submitComment: (data: { articleId: number; parentId?: number; nickname: string; email: string; content: string; website?: string }) =>
+      $api('/comment', { method: 'POST', body: data }),
+    getMusicList: () => $api<any[]>('/music'),
   }
 }

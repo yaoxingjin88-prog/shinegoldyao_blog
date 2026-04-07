@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="banners.length"
-    class="max-w-6xl mx-auto px-6 mb-16 relative w-full h-[520px] md:h-[580px] lg:h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5 group animate-fade-in-up"
+    class="max-w-6xl mx-auto px-6 mt-12 mb-16 relative w-full h-[520px] md:h-[580px] lg:h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5 group animate-fade-in-up"
     style="animation-delay: 0.4s;"
     @mouseenter="stopAutoplay"
     @mouseleave="startAutoplay"
@@ -81,13 +81,13 @@
     </button>
 
     <!-- 底部指示器 -->
-    <div v-if="banners.length > 1" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+    <div v-if="banners.length > 1" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
       <button
         v-for="(_, index) in banners"
         :key="index"
         @click="goTo(index)"
-        class="transition-all duration-500 rounded-full h-2"
-        :class="index === current ? 'w-10 bg-white dark:bg-cyan-400 shadow-lg' : 'w-2 bg-white/50 dark:bg-white/30 hover:bg-white/70 dark:hover:bg-white/50'"
+        class="transition-all duration-500 rounded-full h-2.5"
+        :class="index === current ? 'w-12 bg-cyan-500 shadow-md shadow-cyan-500/30' : 'w-2.5 bg-gray-400/50 dark:bg-white/30 hover:bg-gray-500 dark:hover:bg-white/50'"
       ></button>
     </div>
   </section>

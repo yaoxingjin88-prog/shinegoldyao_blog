@@ -33,6 +33,7 @@ export const tagApi = {
 
 export const articleApi = {
   list: (params?: Record<string, any>) => request.get<any, any>('/article/admin', { params }),
+  getById: (id: string) => request.get<any, any>(`/article/admin/${id}`),
   create: (data: Partial<Article>) => request.post('/article', data),
   update: (id: string, data: Partial<Article>) => request.put(`/article/${id}`, data),
   remove: (id: string) => request.delete(`/article/${id}`),
@@ -67,6 +68,20 @@ export const experienceApi = {
   create: (data: Partial<Experience>) => request.post('/experience', data),
   update: (id: string, data: Partial<Experience>) => request.put(`/experience/${id}`, data),
   remove: (id: string) => request.delete(`/experience/${id}`),
+}
+
+export const socialApi = {
+  list: () => request.get<any, any[]>('/social/admin'),
+  create: (data: Record<string, any>) => request.post('/social', data),
+  update: (id: string, data: Record<string, any>) => request.put(`/social/${id}`, data),
+  remove: (id: string) => request.delete(`/social/${id}`),
+}
+
+export const musicApi = {
+  list: () => request.get<any, any[]>('/music/admin'),
+  create: (data: Record<string, any>) => request.post('/music', data),
+  update: (id: string, data: Record<string, any>) => request.put(`/music/${id}`, data),
+  remove: (id: string) => request.delete(`/music/${id}`),
 }
 
 export const uploadApi = {

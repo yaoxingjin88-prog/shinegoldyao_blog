@@ -2,7 +2,7 @@
   <el-container class="admin-layout">
     <el-aside width="220px" class="aside">
       <div class="logo">
-        <h2>DevVoyage</h2>
+        <h2>ShineGoldYao</h2>
         <p>管理后台</p>
       </div>
       <el-menu :default-active="route.path" router unique-opened background-color="#1d1e1f" text-color="#bfcbd9" active-text-color="#409eff">
@@ -22,7 +22,9 @@
         <el-sub-menu index="system">
           <template #title><el-icon><Setting /></el-icon><span>系统管理</span></template>
           <el-menu-item index="/site">网站配置</el-menu-item>
+          <el-menu-item index="/social">社交链接</el-menu-item>
           <el-menu-item index="/banner">轮播图管理</el-menu-item>
+          <el-menu-item index="/music">音乐管理</el-menu-item>
           <el-menu-item index="/message">留言管理</el-menu-item>
         </el-sub-menu>
       </el-menu>
