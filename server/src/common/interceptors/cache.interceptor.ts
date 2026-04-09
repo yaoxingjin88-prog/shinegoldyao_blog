@@ -28,6 +28,13 @@ export class ApiCacheInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
 
     if (request.method !== 'GET') {
+      // 非GET请求（PUT/POST/DELETE）清除同路径前缀的缓存
+      const basePath = (request.originalUrl || request.url).split('?')[0];
+      for (const key of this.cache.keys()) {
+        if (key.startsWith(basePath) || basePath.startsWith(key.split('?')[0])) {
+          this.cache.delete(key);
+        }
+      }
       return next.handle();
     }
 
