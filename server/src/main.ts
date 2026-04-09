@@ -24,10 +24,12 @@ async function bootstrap() {
     }),
   );
 
+  const corsOrigins = config.get<string[]>('corsOrigins') || [];
   app.enableCors({
-    origin: true,
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization,Accept',
   });
 
   const swaggerConfig = new DocumentBuilder()
