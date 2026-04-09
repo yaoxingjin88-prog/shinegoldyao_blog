@@ -264,11 +264,18 @@ function formatDate(d: string) {
 }
 
 useHead({
-  title: article.value ? `${article.value.title} - DevVoyage` : '文章 - DevVoyage',
+  title: article.value ? `${article.value.title} - 姚兴金的技术博客` : '文章 - 姚兴金的技术博客',
   meta: [
     { name: 'description', content: article.value?.seoDescription || article.value?.summary || '' },
-    { name: 'keywords', content: article.value?.seoKeywords || '' },
+    { name: 'keywords', content: (article.value?.seoKeywords ? article.value.seoKeywords + ',' : '') + '姚兴金,ShineGoldYao,技术博客' },
+    { property: 'og:title', content: article.value?.title || '文章' },
+    { property: 'og:description', content: article.value?.seoDescription || article.value?.summary || '' },
+    { property: 'og:url', content: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` },
+    { property: 'og:type', content: 'article' },
+    { property: 'og:image', content: article.value?.coverUrl || '' },
+    { property: 'article:author', content: '姚兴金' },
   ],
+  link: [{ rel: 'canonical', href: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` }],
 })
 </script>
 

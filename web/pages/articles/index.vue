@@ -83,5 +83,15 @@ categories.value = initData.value?.cats || []
 articles.value = initData.value?.articleRes?.list || []
 total.value = initData.value?.articleRes?.total || 0
 
-useHead({ title: '技术专栏 - DevVoyage' })
+useHead({
+  title: '技术专栏 - 姚兴金的技术博客',
+  meta: [
+    { name: 'description', content: '姚兴金的技术文章专栏，涵盖前端开发、后端架构、全栈实践等技术分享。' },
+    { name: 'keywords', content: '姚兴金,技术文章,前端开发,后端架构,全栈开发,技术博客' },
+    { property: 'og:title', content: '技术专栏 - 姚兴金的技术博客' },
+    { property: 'og:description', content: '姚兴金的技术文章专栏，涵盖前端开发、后端架构、全栈实践。' },
+    { property: 'og:url', content: 'https://shinegoldyao.store/articles' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://shinegoldyao.store/articles' }],
+})
 </script>

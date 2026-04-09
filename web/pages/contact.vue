@@ -120,5 +120,14 @@ async function handleSubmit() {
   }
 }
 
-useHead({ title: '联系我 - DevVoyage' })
+useHead({
+  title: '联系姚兴金 - ShineGoldYao',
+  meta: [
+    { name: 'description', content: '联系姚兴金（ShineGoldYao），欢迎技术交流、合作洽谈或提出建议。' },
+    { name: 'keywords', content: '姚兴金,联系方式,技术交流,合作,ShineGoldYao' },
+    { property: 'og:title', content: '联系姚兴金 - ShineGoldYao' },
+    { property: 'og:url', content: 'https://shinegoldyao.store/contact' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://shinegoldyao.store/contact' }],
+})
 </script>

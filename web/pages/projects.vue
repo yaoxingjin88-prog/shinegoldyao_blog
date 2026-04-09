@@ -57,5 +57,14 @@ const { data: allProjects } = await useAsyncData('projects', () => getProjects()
 const myProjects = computed(() => (allProjects.value || []).filter((p: any) => !p.type || p.type === 0))
 const recommendedProjects = computed(() => (allProjects.value || []).filter((p: any) => p.type === 1))
 
-useHead({ title: '开源项目 - DevVoyage' })
+useHead({
+  title: '开源项目 - 姚兴金的技术博客',
+  meta: [
+    { name: 'description', content: '姚兴金的开源项目展示，包含个人项目与推荐的优质开源项目。' },
+    { name: 'keywords', content: '姚兴金,开源项目,GitHub,全栈项目,ShineGoldYao' },
+    { property: 'og:title', content: '开源项目 - 姚兴金的技术博客' },
+    { property: 'og:url', content: 'https://shinegoldyao.store/projects' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://shinegoldyao.store/projects' }],
+})
 </script>

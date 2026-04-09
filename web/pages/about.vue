@@ -126,5 +126,15 @@ siteConfig.value = data.value?.config as Record<string, string> || {}
 skillCategories.value = data.value?.skills as any[] || []
 experiences.value = data.value?.exps as any[] || []
 
-useHead({ title: '关于我 - ' + (siteConfig.value?.site_title || 'DevVoyage') })
+useHead({
+  title: '关于姚兴金 - ' + (siteConfig.value?.site_title || 'ShineGoldYao'),
+  meta: [
+    { name: 'description', content: '了解姚兴金（ShineGoldYao），全栈开发者、开源爱好者、技术探索者。查看技术栈、工作经历与个人简介。' },
+    { name: 'keywords', content: '姚兴金,ShineGoldYao,关于我,全栈开发者,技术栈,工作经历' },
+    { property: 'og:title', content: '关于姚兴金 - ShineGoldYao' },
+    { property: 'og:description', content: '了解姚兴金，全栈开发者、开源爱好者、技术探索者。' },
+    { property: 'og:url', content: 'https://shinegoldyao.store/about' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://shinegoldyao.store/about' }],
+})
 </script>

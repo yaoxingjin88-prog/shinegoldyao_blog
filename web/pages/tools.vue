@@ -77,7 +77,16 @@ import type { Component } from 'vue'
 
 const iconMap: Record<string, Component> = { Code2, Palette, Image, BookOpen, Globe, Wrench, Compass }
 
-useHead({ title: '实用工具 - DevVoyage' })
+useHead({
+  title: '实用工具 - 姚兴金的技术博客',
+  meta: [
+    { name: 'description', content: '姚兴金精选的开发者实用工具导航，涵盖前端、设计、AI、效率工具等。' },
+    { name: 'keywords', content: '姚兴金,开发者工具,前端工具,设计工具,效率工具,ShineGoldYao' },
+    { property: 'og:title', content: '实用工具 - 姚兴金的技术博客' },
+    { property: 'og:url', content: 'https://shinegoldyao.store/tools' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://shinegoldyao.store/tools' }],
+})
 
 const { getTools } = useApi()
 const { data: apiCategories } = await useAsyncData('tools', () => getTools().catch(() => []), {

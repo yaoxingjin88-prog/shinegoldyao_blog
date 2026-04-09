@@ -43,10 +43,16 @@ const skillCategories = computed(() => homeData.value?.skillCategories || [])
 const articles = computed(() => homeData.value?.articles || [])
 
 useHead({
-  title: computed(() => (siteConfig.value?.site_title || 'DevVoyage') + ' - 个人技术博客'),
+  title: computed(() => '姚兴金 - ' + (siteConfig.value?.site_title || 'ShineGoldYao') + ' 个人技术博客'),
   meta: [
-    { name: 'description', content: computed(() => siteConfig.value?.seo_description || '') },
-    { name: 'keywords', content: computed(() => siteConfig.value?.seo_keywords || '') },
+    { name: 'description', content: computed(() => siteConfig.value?.seo_description || '姚兴金（ShineGoldYao）的个人技术博客，专注于全栈开发、前端工程化、后端架构与开源项目分享。') },
+    { name: 'keywords', content: computed(() => '姚兴金,ShineGoldYao,' + (siteConfig.value?.seo_keywords || '个人技术博客,全栈开发')) },
+    { property: 'og:title', content: computed(() => '姚兴金 - ' + (siteConfig.value?.site_title || 'ShineGoldYao') + ' 个人技术博客') },
+    { property: 'og:description', content: computed(() => siteConfig.value?.seo_description || '姚兴金的个人技术博客') },
+    { property: 'og:url', content: 'https://shinegoldyao.store' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://shinegoldyao.store' },
   ],
 })
 </script>
