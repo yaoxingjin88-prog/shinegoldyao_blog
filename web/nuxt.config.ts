@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image'],
-  colorMode: { classSuffix: '', preference: 'system', fallback: 'light' },
+  colorMode: { classSuffix: '', preference: 'dark', fallback: 'dark' },
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000/api',

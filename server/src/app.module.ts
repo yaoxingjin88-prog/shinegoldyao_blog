@@ -23,6 +23,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { ExperienceModule } from './modules/experience/experience.module';
 import { MusicModule } from './modules/music/music.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { ToolModule } from './modules/tool/tool.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { UploadModule } from './modules/upload/upload.module';
     ExperienceModule,
     MusicModule,
     UploadModule,
+    ToolModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

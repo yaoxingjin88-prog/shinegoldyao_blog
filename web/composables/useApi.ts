@@ -27,5 +27,6 @@ export function useApi() {
     submitComment: (data: { articleId: number; parentId?: number; nickname: string; email: string; content: string; website?: string }) =>
       $api('/comment', { method: 'POST', body: data }),
     getMusicList: () => $api<any[]>('/music'),
+    getTools: () => $api<any[]>('/tool'),
   }
 }

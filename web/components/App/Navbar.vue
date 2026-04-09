@@ -4,13 +4,13 @@
       <NuxtLink to="/" class="group flex items-center gap-2 text-xl font-bold">
             <!-- 发光星星 -->
             <span class="relative flex items-center justify-center w-7 h-7 transition-transform duration-300 group-hover:scale-110">
-              <span class="absolute inset-0 rounded-full blur-lg opacity-50 dark:opacity-60 animate-pulse bg-blue-400 dark:bg-amber-400"></span>
-              <span class="absolute inset-0 rounded-full blur-md opacity-30 dark:opacity-40 transition-all duration-300 group-hover:opacity-70 group-hover:blur-lg bg-blue-400 dark:bg-amber-400"></span>
-              <svg viewBox="0 0 24 24" fill="currentColor" class="relative z-10 w-5 h-5 text-blue-500 dark:text-amber-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.6)] dark:drop-shadow-[0_0_6px_rgba(251,191,36,0.6)] transition-all duration-300">
+              <span class="absolute inset-0 rounded-full blur-lg opacity-50 dark:opacity-40 animate-pulse bg-blue-400 dark:bg-sky-400"></span>
+              <span class="absolute inset-0 rounded-full blur-md opacity-30 dark:opacity-25 transition-all duration-300 group-hover:opacity-50 group-hover:blur-lg bg-blue-400 dark:bg-sky-400"></span>
+              <svg viewBox="0 0 24 24" fill="currentColor" class="relative z-10 w-5 h-5 text-blue-500 dark:text-sky-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.6)] dark:drop-shadow-[0_0_5px_rgba(56,189,248,0.5)] transition-all duration-300">
                 <path d="M12 1.5C12.5 7.5 16.5 11.5 22.5 12C16.5 12.5 12.5 16.5 12 22.5C11.5 16.5 7.5 12.5 1.5 12C7.5 11.5 11.5 7.5 12 1.5Z" />
               </svg>
             </span>
-            <span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-600 to-blue-500 dark:from-white dark:via-amber-300 dark:to-amber-400">{{ siteTitle }}</span>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-600 to-blue-500 dark:from-gray-100 dark:via-sky-300 dark:to-sky-400">{{ siteTitle }}</span>
       </NuxtLink>
       <div class="hidden md:flex items-center gap-8">
         <NuxtLink
@@ -27,12 +27,24 @@
           登录
         </NuxtLink>
         <ClientOnly>
+          <button
+            @click="toggleMeteor"
+            class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors relative"
+            :class="meteorActive ? 'text-amber-500 dark:text-sky-400 bg-amber-50 dark:bg-sky-900/30' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            title="流星雨"
+          >
+            <Sparkles class="w-5 h-5" />
+            <span v-if="meteorActive" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-sky-400 animate-pulse" />
+          </button>
           <button @click="toggleTheme" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <Sun v-if="isDark" class="w-5 h-5" />
             <Moon v-else class="w-5 h-5" />
           </button>
           <template #fallback>
-            <div class="w-9 h-9"></div>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9"></div>
+              <div class="w-9 h-9"></div>
+            </div>
           </template>
         </ClientOnly>
         <button @click="mobileOpen = !mobileOpen" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -48,7 +60,9 @@
 </template>
 
 <script setup lang="ts">
-import { Sun, Moon, Menu, LogIn, User } from 'lucide-vue-next'
+import { Sun, Moon, Menu, LogIn, User, Sparkles } from 'lucide-vue-next'
+
+const { meteorActive, toggleMeteor } = useMeteor()
 
 const { getSiteConfig } = useApi()
 const colorMode = useColorMode()
@@ -64,6 +78,7 @@ const navItems = [
   { to: '/about', label: '关于我' },
   { to: '/articles', label: '文章' },
   { to: '/projects', label: '项目' },
+  { to: '/tools', label: '工具' },
   { to: '/contact', label: '联系' },
 ]
 

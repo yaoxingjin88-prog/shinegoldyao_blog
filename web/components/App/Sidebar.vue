@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { Home, UserCircle, FileText, FolderOpen, MessageCircle } from 'lucide-vue-next'
+import { Home, UserCircle, FileText, FolderOpen, Compass, MessageCircle } from 'lucide-vue-next'
 
 const route = useRoute()
 const expanded = ref(false)
@@ -49,6 +49,7 @@ const navItems = [
   { to: '/about', label: '关于我', icon: UserCircle },
   { to: '/articles', label: '文章', icon: FileText },
   { to: '/projects', label: '项目', icon: FolderOpen },
+  { to: '/tools', label: '工具', icon: Compass },
   { to: '/contact', label: '联系', icon: MessageCircle },
 ]
 

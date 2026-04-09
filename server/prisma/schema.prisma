@@ -232,6 +232,39 @@ model Music {
   @@map("music")
 }
 
+model ToolCategory {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryName String   @map("category_name") @db.VarChar(50)
+  icon         String   @default("") @db.VarChar(50)
+  bgClass      String   @default("") @map("bg_class") @db.VarChar(100)
+  iconClass    String   @default("") @map("icon_class") @db.VarChar(100)
+  sort         Int      @default(0)
+  isEnable     Int      @default(1) @map("is_enable") @db.TinyInt
+  createTime   DateTime @default(now()) @map("create_time")
+  updateTime   DateTime @updatedAt @map("update_time")
+  deleteTime   BigInt   @default(0) @map("delete_time") @db.UnsignedBigInt
+  tools        ToolItem[]
+
+  @@map("tool_category")
+}
+
+model ToolItem {
+  id         BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryId BigInt       @map("category_id") @db.UnsignedBigInt
+  name       String       @db.VarChar(100)
+  emoji      String       @default("🔗") @db.VarChar(10)
+  description String      @default("") @db.VarChar(255)
+  url        String       @default("") @db.VarChar(500)
+  sort       Int          @default(0)
+  isEnable   Int          @default(1) @map("is_enable") @db.TinyInt
+  createTime DateTime     @default(now()) @map("create_time")
+  updateTime DateTime     @updatedAt @map("update_time")
+  deleteTime BigInt       @default(0) @map("delete_time") @db.UnsignedBigInt
+  category   ToolCategory @relation(fields: [categoryId], references: [id])
+
+  @@map("tool_item")
+}
+
 model AdminUser {
   id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   username      String    @db.VarChar(50)

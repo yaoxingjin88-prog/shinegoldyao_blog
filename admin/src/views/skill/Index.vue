@@ -8,8 +8,8 @@
       <el-collapse-item v-for="cat in list" :key="cat.id" :name="cat.id">
         <template #title>
           <div style="display:flex;align-items:center;gap:8px">
-            <el-tag :color="cat.themeColor" size="small" style="color:#fff">{{ cat.categoryName }}</el-tag>
-            <span style="color:#999;font-size:12px">({{ cat.skills?.length || 0 }}项)</span>
+            <el-tag :color="cat.themeColor" size="small" style="color:#fff;min-width:80px;text-align:center">{{ cat.categoryName }}</el-tag>
+            <span style="color:#999;font-size:12px;min-width:40px">({{ cat.skills?.length || 0 }}项)</span>
             <el-button link type="primary" size="small" @click.stop="openCatDialog(cat)">编辑</el-button>
             <el-popconfirm title="确定删除该分类？" @confirm="deleteCat(cat.id)"><template #reference><el-button link type="danger" size="small" @click.stop>删除</el-button></template></el-popconfirm>
           </div>
@@ -45,7 +45,7 @@
     <el-dialog v-model="skillDialog" :title="skillEditId ? '编辑技术' : '新增技术'" width="550px">
       <el-form :model="skillForm" label-width="80px">
         <el-form-item label="分类">
-          <el-select v-model="skillForm.categoryId" style="width:100%">
+          <el-select v-model="skillForm.categoryId" placeholder="请选择分类" style="width:100%">
             <el-option v-for="c in list" :key="c.id" :label="c.categoryName" :value="Number(c.id)" />
           </el-select>
         </el-form-item>
@@ -128,7 +128,7 @@ const catEditId = ref('')
 const catForm = reactive({ categoryName: '', themeColor: '', sort: 0 })
 const skillDialog = ref(false)
 const skillEditId = ref('')
-const skillForm = reactive({ categoryId: 0, skillName: '', proficiency: 50, iconUrl: '', description: '', sort: 0 })
+const skillForm = reactive({ categoryId: undefined as number | undefined, skillName: '', proficiency: 50, iconUrl: '', description: '', sort: 0 })
 
 function selectIcon(url: string) {
   skillForm.iconUrl = url
@@ -141,7 +141,12 @@ function openCatDialog(row?: SkillCategory) {
 }
 function openSkillDialog(row?: Skill, catId?: string) {
   skillEditId.value = row?.id || ''
-  Object.assign(skillForm, row || { categoryId: catId ? Number(catId) : 0, skillName: '', proficiency: 50, iconUrl: '', description: '', sort: 0 })
+  // 先重置所有字段，再赋值，避免残留旧数据
+  const defaults = { categoryId: catId ? Number(catId) : undefined as number | undefined, skillName: '', proficiency: 50, iconUrl: '', description: '', sort: 0 }
+  Object.assign(skillForm, defaults)
+  if (row) {
+    Object.assign(skillForm, { categoryId: Number(row.categoryId), skillName: row.skillName, proficiency: row.proficiency, iconUrl: row.iconUrl || '', description: row.description || '', sort: row.sort || 0 })
+  }
   skillDialog.value = true
 }
 async function submitCat() {
@@ -150,6 +155,8 @@ async function submitCat() {
   ElMessage.success('操作成功'); catDialog.value = false; loadData()
 }
 async function submitSkill() {
+  if (!skillForm.categoryId) { ElMessage.warning('请选择分类'); return }
+  if (!skillForm.skillName.trim()) { ElMessage.warning('请输入技术名称'); return }
   if (skillEditId.value) await skillApi.updateSkill(skillEditId.value, skillForm)
   else await skillApi.createSkill(skillForm)
   ElMessage.success('操作成功'); skillDialog.value = false; loadData()

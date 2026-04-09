@@ -143,7 +143,7 @@
                bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl
                border-gray-200/60 dark:border-white/10
                hover:shadow-purple-500/20 dark:hover:shadow-purple-400/20 hover:shadow-xl"
-        :class="isPlaying ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-transparent' : ''"
+        :class="[isPlaying ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-transparent animate-spin-fab' : '']"
       >
         <div v-if="isPlaying" class="absolute inset-0 rounded-full animate-ping-slow bg-purple-400/20"></div>
         <Music class="w-5 h-5 text-purple-600 dark:text-purple-400 relative z-10" />
@@ -278,6 +278,9 @@ onUnmounted(() => {
 }
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
+}
+.animate-spin-fab {
+  animation: spin-slow 6s linear infinite;
 }
 
 @keyframes ping-slow {

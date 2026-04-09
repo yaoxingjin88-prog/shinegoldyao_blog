@@ -11,7 +11,7 @@ export class CreateSkillCategoryDto {
 export class UpdateSkillCategoryDto extends PartialType(CreateSkillCategoryDto) {}
 
 export class CreateSkillDto {
-  @ApiProperty() @IsNotEmpty() @Type(() => Number) @IsInt() categoryId: number;
+  @ApiProperty() @IsNotEmpty() @Type(() => Number) @IsInt() @Min(1) categoryId: number;
   @ApiProperty() @IsNotEmpty() @IsString() skillName: string;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(0) @Max(100) proficiency?: number;
   @ApiPropertyOptional() @IsOptional() @IsString() iconUrl?: string;

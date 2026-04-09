@@ -84,6 +84,17 @@ export const musicApi = {
   remove: (id: string) => request.delete(`/music/${id}`),
 }
 
+export const toolApi = {
+  categories: () => request.get<any, any[]>('/tool/category/admin'),
+  createCategory: (data: Record<string, any>) => request.post('/tool/category', data),
+  updateCategory: (id: string, data: Record<string, any>) => request.put(`/tool/category/${id}`, data),
+  removeCategory: (id: string) => request.delete(`/tool/category/${id}`),
+  items: () => request.get<any, any[]>('/tool/item/admin'),
+  createItem: (data: Record<string, any>) => request.post('/tool/item', data),
+  updateItem: (id: string, data: Record<string, any>) => request.put(`/tool/item/${id}`, data),
+  removeItem: (id: string) => request.delete(`/tool/item/${id}`),
+}
+
 export const uploadApi = {
   uploadImage: (file: File) => {
     const formData = new FormData()
