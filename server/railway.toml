@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+installCmd = "npm install && npx prisma generate"
+buildCmd = "npm run build"
+
+[deploy]
+startCommand = "npx prisma db push && node dist/src/main"
+healthcheckPath = "/api"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
