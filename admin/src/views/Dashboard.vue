@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { articleApi, projectApi, messageApi, categoryApi, tagApi } from '../api'
+import { articleApi, projectApi, messageApi, categoryApi, tagApi, trackApi } from '../api'
 
 // --- 时钟 ---
 const now = ref(new Date())
@@ -118,13 +118,13 @@ const currentDate = computed(() => {
 })
 
 // --- 统计 ---
-const stats = reactive({ articles: 0, projects: 0, messages: 0, categories: 0 })
+const stats = reactive({ articles: 0, projects: 0, messages: 0, categories: 0, todayPV: 0, todayUV: 0 })
 
 const statCards = computed(() => [
   { title: '文章总数', value: stats.articles, icon: 'Document', color: '#6366f1', bg: '#eef2ff' },
   { title: '项目总数', value: stats.projects, icon: 'Briefcase', color: '#f43f5e', bg: '#fff1f2' },
-  { title: '留言总数', value: stats.messages, icon: 'ChatDotSquare', color: '#0ea5e9', bg: '#f0f9ff' },
-  { title: '分类总数', value: stats.categories, icon: 'Menu', color: '#10b981', bg: '#ecfdf5' },
+  { title: '今日访问', value: stats.todayPV, icon: 'View', color: '#0ea5e9', bg: '#f0f9ff' },
+  { title: '今日访客', value: stats.todayUV, icon: 'UserFilled', color: '#10b981', bg: '#ecfdf5' },
 ])
 
 onMounted(async () => {
@@ -139,6 +139,11 @@ onMounted(async () => {
     stats.projects = Array.isArray(projects) ? projects.length : 0
     stats.messages = messages?.total || 0
     stats.categories = Array.isArray(categories) ? categories.length : 0
+  } catch { /* ignore */ }
+  try {
+    const trackStats = await trackApi.stats()
+    stats.todayPV = trackStats?.todayPV || 0
+    stats.todayUV = trackStats?.todayUV || 0
   } catch { /* ignore */ }
 })
 

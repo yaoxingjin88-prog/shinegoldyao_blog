@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateExperienceDto, UpdateExperienceDto } from './dto/experience.dto';
 import { ExperienceService } from './experience.service';
 
@@ -11,6 +12,7 @@ export class ExperienceController {
 
   @Public()
   @Get()
+  @CacheTTL(120)
   @ApiOperation({ summary: '获取经历列表' })
   findAll() {
     return this.experienceService.findAll();

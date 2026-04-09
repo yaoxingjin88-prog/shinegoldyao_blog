@@ -8,6 +8,7 @@ import configuration from './config/configuration';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ApiCacheInterceptor } from './common/interceptors/cache.interceptor';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SiteModule } from './modules/site/site.module';
@@ -24,6 +25,7 @@ import { ExperienceModule } from './modules/experience/experience.module';
 import { MusicModule } from './modules/music/music.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ToolModule } from './modules/tool/tool.module';
+import { TrackModule } from './modules/track/track.module';
 
 @Module({
   imports: [
@@ -57,11 +59,13 @@ import { ToolModule } from './modules/tool/tool.module';
     MusicModule,
     UploadModule,
     ToolModule,
+    TrackModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: ApiCacheInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
   ],
 })

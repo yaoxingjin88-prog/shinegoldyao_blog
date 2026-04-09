@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { BannerService } from './banner.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.dto';
 
@@ -11,6 +12,7 @@ export class BannerController {
 
   @Public()
   @Get()
+  @CacheTTL(60)
   @ApiOperation({ summary: '获取启用的轮播图列表' })
   findAll() {
     return this.bannerService.findAll();

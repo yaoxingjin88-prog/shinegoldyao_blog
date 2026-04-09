@@ -94,6 +94,8 @@ export interface Banner {
   title: string
   description: string
   imageUrl: string
+  bgColor: string
+  bgColorDark: string
   linkUrl: string
   sort: number
   isEnable: number

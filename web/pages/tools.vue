@@ -80,7 +80,9 @@ const iconMap: Record<string, Component> = { Code2, Palette, Image, BookOpen, Gl
 useHead({ title: '实用工具 - DevVoyage' })
 
 const { getTools } = useApi()
-const { data: apiCategories } = await useAsyncData('tools', () => getTools().catch(() => []))
+const { data: apiCategories } = await useAsyncData('tools', () => getTools().catch(() => []), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 
 const categories = computed(() => {
   const list = apiCategories.value || []

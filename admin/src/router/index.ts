@@ -28,6 +28,7 @@ const router = createRouter({
         { path: 'music', component: () => import('../views/music/Index.vue') },
         { path: 'effects', component: () => import('../views/effects/Index.vue') },
         { path: 'tool', component: () => import('../views/tool/Index.vue') },
+        { path: 'track', component: () => import('../views/track/Index.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' },

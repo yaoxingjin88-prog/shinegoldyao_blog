@@ -72,7 +72,9 @@ const links = [
   { to: '/contact', label: '联系' },
 ]
 
-const { data: socials } = await useAsyncData('footer-socials', () => getSocialLinks().catch(() => []))
-const siteTitle = 'ShiGoldYao'
+const { data: socials } = await useAsyncData('footer-socials', () => getSocialLinks().catch(() => []), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
+const siteTitle = 'ShineGoldYao'
 const siteSubtitle = '一个专注于现代前端架构、系统底层原理与极客生活方式的个人技术博客。在这里，架构代码，书写未来。'
 </script>

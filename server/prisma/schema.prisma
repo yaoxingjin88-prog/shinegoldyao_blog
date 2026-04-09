@@ -265,6 +265,23 @@ model ToolItem {
   @@map("tool_item")
 }
 
+model VisitLog {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  ip         String   @default("") @db.VarChar(50)
+  path       String   @default("") @db.VarChar(500)
+  title      String   @default("") @db.VarChar(200)
+  userAgent  String   @default("") @map("user_agent") @db.VarChar(500)
+  browser    String   @default("") @db.VarChar(100)
+  os         String   @default("") @db.VarChar(100)
+  device     String   @default("") @db.VarChar(50)
+  userId     BigInt?  @map("user_id") @db.UnsignedBigInt
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@index([ip])
+  @@index([createTime])
+  @@map("visit_log")
+}
+
 model AdminUser {
   id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   username      String    @db.VarChar(50)

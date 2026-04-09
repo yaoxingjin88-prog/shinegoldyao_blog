@@ -69,7 +69,9 @@ const success = ref(false)
 const error = ref('')
 const form = reactive({ nickname: '', email: '', content: '', contact: '' })
 
-const { data: socials } = await useAsyncData('contact-socials', () => getSocialLinks().catch(() => []))
+const { data: socials } = await useAsyncData('contact-socials', () => getSocialLinks().catch(() => []), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 
 const iconMap: Record<string, any> = {
   '邮箱': Mail, 'email': Mail, 'Email': Mail,

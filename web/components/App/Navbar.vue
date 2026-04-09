@@ -70,7 +70,9 @@ const scrolled = ref(false)
 const mobileOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
-const { data: navConfig } = await useAsyncData('nav-config', () => getSiteConfig().catch(() => ({})))
+const { data: navConfig } = await useAsyncData('nav-config', () => getSiteConfig().catch(() => ({})), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 const siteTitle = computed(() => navConfig.value?.site_title || 'DevVoyage')
 
 const navItems = [

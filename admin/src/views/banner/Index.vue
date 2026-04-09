@@ -5,10 +5,13 @@
       <el-button type="primary" @click="openDialog()">新增轮播图</el-button>
     </div>
     <el-table :data="list" border stripe>
-      <el-table-column label="预览" width="120">
+      <el-table-column label="预览" width="180">
         <template #default="{ row }">
           <el-image v-if="row.imageUrl" :src="row.imageUrl" style="width:80px;height:45px" fit="cover" />
-          <div v-else :style="{ background: row.bgColor || 'linear-gradient(135deg,#e0e7ff,#f3e8ff)', width:'80px', height:'45px', borderRadius:'4px' }"></div>
+          <div v-else style="display:flex;gap:4px">
+            <div :style="{ background: row.bgColor || 'linear-gradient(135deg,#e0e7ff,#f3e8ff)', width:'80px', height:'45px', borderRadius:'4px' }" title="亮色"></div>
+            <div :style="{ background: row.bgColorDark || 'linear-gradient(135deg,#1e1b4b,#312e81)', width:'80px', height:'45px', borderRadius:'4px' }" title="暗色"></div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="标题" />

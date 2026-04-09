@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 import { ProjectService } from './project.service';
 
@@ -11,6 +12,7 @@ export class ProjectController {
 
   @Public()
   @Get()
+  @CacheTTL(60)
   @ApiOperation({ summary: '获取项目列表' })
   findAll() {
     return this.projectService.findAll();

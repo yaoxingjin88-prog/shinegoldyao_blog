@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateSocialDto, UpdateSocialDto } from './dto/social.dto';
 import { SocialService } from './social.service';
 
@@ -11,6 +12,7 @@ export class SocialController {
 
   @Public()
   @Get()
+  @CacheTTL(120)
   @ApiOperation({ summary: '获取社交链接列表' })
   findAll() {
     return this.socialService.findAll();

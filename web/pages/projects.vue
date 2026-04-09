@@ -50,7 +50,9 @@
 import { Star, Code2, Sparkles } from 'lucide-vue-next'
 
 const { getProjects } = useApi()
-const { data: allProjects } = await useAsyncData('projects', () => getProjects().catch(() => []))
+const { data: allProjects } = await useAsyncData('projects', () => getProjects().catch(() => []), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 
 const myProjects = computed(() => (allProjects.value || []).filter((p: any) => !p.type || p.type === 0))
 const recommendedProjects = computed(() => (allProjects.value || []).filter((p: any) => p.type === 1))

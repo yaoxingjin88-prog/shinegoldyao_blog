@@ -69,8 +69,19 @@ async function loadData() {
   total.value = res?.total || 0
 }
 
-categories.value = await getCategories().catch(() => []) || []
-await loadData()
+const { data: initData } = await useAsyncData('articles-init', async () => {
+  const [cats, articleRes] = await Promise.all([
+    getCategories().catch(() => []),
+    getArticles({ page: 1, pageSize }).catch(() => ({ list: [], total: 0 })),
+  ])
+  return { cats, articleRes }
+}, {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
+
+categories.value = initData.value?.cats || []
+articles.value = initData.value?.articleRes?.list || []
+total.value = initData.value?.articleRes?.total || 0
 
 useHead({ title: '技术专栏 - DevVoyage' })
 </script>

@@ -95,6 +95,11 @@ export const toolApi = {
   removeItem: (id: string) => request.delete(`/tool/item/${id}`),
 }
 
+export const trackApi = {
+  list: (params?: Record<string, any>) => request.get<any, any>('/track', { params }),
+  stats: () => request.get<any, any>('/track/stats'),
+}
+
 export const uploadApi = {
   uploadImage: (file: File) => {
     const formData = new FormData()

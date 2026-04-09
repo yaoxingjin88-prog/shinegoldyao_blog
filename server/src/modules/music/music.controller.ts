@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateMusicDto, UpdateMusicDto } from './dto/music.dto';
 import { MusicService } from './music.service';
 
@@ -11,6 +12,7 @@ export class MusicController {
 
   @Public()
   @Get()
+  @CacheTTL(120)
   @ApiOperation({ summary: '获取音乐列表（公开，已启用）' })
   findAll() {
     return this.musicService.findAll();

@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateSkillCategoryDto, CreateSkillDto, UpdateSkillCategoryDto, UpdateSkillDto } from './dto/skill.dto';
 import { SkillService } from './skill.service';
 
@@ -11,6 +12,7 @@ export class SkillController {
 
   @Public()
   @Get('categories')
+  @CacheTTL(120)
   @ApiOperation({ summary: '获取技术分类（含技能列表）' })
   findCategories() {
     return this.skillService.findCategories();

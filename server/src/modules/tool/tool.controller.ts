@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { CreateToolCategoryDto, UpdateToolCategoryDto, CreateToolItemDto, UpdateToolItemDto } from './dto/tool.dto';
 import { ToolService } from './tool.service';
 
@@ -12,6 +13,7 @@ export class ToolController {
   // ---- 前台 ----
   @Public()
   @Get()
+  @CacheTTL(120)
   @ApiOperation({ summary: '获取工具导航（前台）' })
   findAllPublic() {
     return this.toolService.findAllPublic();

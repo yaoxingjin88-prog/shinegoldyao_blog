@@ -117,7 +117,10 @@ const { data } = await useAsyncData('about', async () => {
     getExperiences().catch(() => []),
   ])
   return { config, skills, exps }
-}, { server: true })
+}, {
+  server: true,
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 
 siteConfig.value = data.value?.config as Record<string, string> || {}
 skillCategories.value = data.value?.skills as any[] || []

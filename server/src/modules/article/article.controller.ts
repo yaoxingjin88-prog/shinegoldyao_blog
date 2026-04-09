@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
+import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { ArticleService } from './article.service';
 import { CreateArticleDto, QueryArticleDto, UpdateArticleDto } from './dto/article.dto';
 
@@ -11,6 +12,7 @@ export class ArticleController {
 
   @Public()
   @Get()
+  @CacheTTL(30)
   @ApiOperation({ summary: '获取文章列表（分页+筛选）' })
   findAll(@Query() query: QueryArticleDto) {
     return this.articleService.findAll(query);
@@ -32,6 +34,7 @@ export class ArticleController {
 
   @Public()
   @Get(':slug')
+  @CacheTTL(30)
   @ApiOperation({ summary: '获取文章详情（按slug，自增阅读数）' })
   findBySlug(@Param('slug') slug: string) {
     return this.articleService.findBySlug(slug);

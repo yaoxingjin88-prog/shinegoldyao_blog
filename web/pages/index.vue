@@ -32,7 +32,10 @@ const { data: homeData } = await useAsyncData('home', async () => {
     skillCategories: skills as any[],
     articles: ((articleRes as any)?.list || []) as any[],
   }
-}, { server: true })
+}, {
+  server: true,
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
 
 const siteConfig = computed(() => homeData.value?.siteConfig || {})
 const banners = computed(() => homeData.value?.banners || [])
