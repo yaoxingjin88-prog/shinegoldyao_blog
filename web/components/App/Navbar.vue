@@ -1,11 +1,11 @@
 <template>
-  <nav class="fixed top-0 w-full z-50 transition-all duration-300" :class="scrolled ? 'bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 py-3 shadow-sm' : 'bg-transparent py-5'">
+  <nav class="fixed top-0 w-full z-50 transition-all duration-300" :class="scrolled ? 'bg-white/95 dark:bg-gray-950/95 md:bg-white/80 md:dark:bg-gray-950/80 md:backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 py-3 shadow-sm' : 'bg-transparent py-5'">
     <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
       <NuxtLink to="/" class="group flex items-center gap-2 text-xl font-bold">
             <!-- 发光星星 -->
             <span class="relative flex items-center justify-center w-7 h-7 transition-transform duration-300 group-hover:scale-110">
-              <span class="absolute inset-0 rounded-full blur-lg opacity-50 dark:opacity-40 animate-pulse bg-blue-400 dark:bg-sky-400"></span>
-              <span class="absolute inset-0 rounded-full blur-md opacity-30 dark:opacity-25 transition-all duration-300 group-hover:opacity-50 group-hover:blur-lg bg-blue-400 dark:bg-sky-400"></span>
+              <span class="hidden md:block absolute inset-0 rounded-full blur-lg opacity-50 dark:opacity-40 animate-pulse bg-blue-400 dark:bg-sky-400"></span>
+              <span class="hidden md:block absolute inset-0 rounded-full blur-md opacity-30 dark:opacity-25 transition-all duration-300 group-hover:opacity-50 group-hover:blur-lg bg-blue-400 dark:bg-sky-400"></span>
               <svg viewBox="0 0 24 24" fill="currentColor" class="relative z-10 w-5 h-5 text-blue-500 dark:text-sky-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.6)] dark:drop-shadow-[0_0_5px_rgba(56,189,248,0.5)] transition-all duration-300">
                 <path d="M12 1.5C12.5 7.5 16.5 11.5 22.5 12C16.5 12.5 12.5 16.5 12 22.5C11.5 16.5 7.5 12.5 1.5 12C7.5 11.5 11.5 7.5 12 1.5Z" />
               </svg>
@@ -54,7 +54,6 @@
     </div>
     <div v-if="mobileOpen" class="md:hidden bg-white dark:bg-gray-950 border-t dark:border-gray-800 px-6 py-4 space-y-3">
       <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="block text-sm font-medium text-gray-800 dark:text-gray-100" :class="$route.path === item.to ? 'text-blue-600 dark:text-blue-400' : ''" @click="mobileOpen = false">{{ item.label }}</NuxtLink>
-      <NuxtLink to="/login" class="block text-sm font-medium text-blue-600 dark:text-blue-400" @click="mobileOpen = false">登录</NuxtLink>
     </div>
   </nav>
 </template>

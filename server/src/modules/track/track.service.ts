@@ -76,12 +76,14 @@ export class TrackService {
       this.prisma.visitLog.count({
         where: { createTime: { gte: todayStart } },
       }),
-      this.prisma.visitLog.groupBy({
-        by: ['ip'],
+      this.prisma.visitLog.findMany({
         where: { createTime: { gte: todayStart } },
+        distinct: ['ip'],
+        select: { ip: true },
       }).then((r) => r.length),
-      this.prisma.visitLog.groupBy({
-        by: ['ip'],
+      this.prisma.visitLog.findMany({
+        distinct: ['ip'],
+        select: { ip: true },
       }).then((r) => r.length),
     ]);
 

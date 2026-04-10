@@ -6,7 +6,7 @@
         <div
           v-if="expanded"
           class="w-80 rounded-2xl border shadow-2xl overflow-hidden
-                 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl
+                 bg-white/95 dark:bg-gray-900/95 md:bg-white/90 md:dark:bg-gray-900/90 md:backdrop-blur-xl
                  border-gray-200/60 dark:border-white/10"
         >
           <!-- 封面区域 -->
@@ -140,7 +140,7 @@
       <button
         @click="expanded = !expanded"
         class="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 border
-               bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl
+               bg-white/95 dark:bg-gray-900/95 md:bg-white/90 md:dark:bg-gray-900/90 md:backdrop-blur-xl
                border-gray-200/60 dark:border-white/10
                hover:shadow-purple-500/20 dark:hover:shadow-purple-400/20 hover:shadow-xl"
         :class="[isPlaying ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-transparent animate-spin-fab' : '']"

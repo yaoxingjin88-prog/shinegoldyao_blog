@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="banners.length"
-    class="max-w-6xl mx-auto px-6 mt-12 mb-16 relative w-full h-[520px] md:h-[580px] lg:h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5 group animate-fade-in-up"
+    class="max-w-6xl mx-auto px-6 mt-12 mb-16 relative w-full h-[360px] md:h-[580px] lg:h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5 group animate-fade-in-up"
     style="animation-delay: 0.4s;"
     @mouseenter="stopAutoplay"
     @mouseleave="startAutoplay"
@@ -14,29 +14,29 @@
       :class="index === current ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0 pointer-events-none'"
     >
       <!-- 背景图或渐变 -->
-      <img v-if="banner.imageUrl" :src="banner.imageUrl" :alt="banner.title" class="absolute inset-0 w-full h-full object-cover" />
+      <img v-if="banner.imageUrl" :src="banner.imageUrl" :alt="banner.title" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
       <template v-else>
         <div class="absolute inset-0 dark:hidden" :style="{ background: banner.bgColor || 'linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #fce7f3 100%)' }"></div>
         <div class="absolute inset-0 hidden dark:block" :style="{ background: banner.bgColorDark || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)' }"></div>
       </template>
       
-      <!-- 多层光晕效果 -->
-      <div class="absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full bg-purple-300/40 dark:bg-purple-500/30 blur-[120px] mix-blend-multiply dark:mix-blend-screen"></div>
-      <div class="absolute -left-20 -bottom-20 w-[400px] h-[400px] rounded-full bg-cyan-300/30 dark:bg-cyan-500/20 blur-[100px] mix-blend-multiply dark:mix-blend-screen"></div>
+      <!-- 多层光晕效果 - 移动端隐藏 -->
+      <div class="hidden md:block absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full bg-purple-300/40 dark:bg-purple-500/30 blur-[120px] mix-blend-multiply dark:mix-blend-screen"></div>
+      <div class="hidden md:block absolute -left-20 -bottom-20 w-[400px] h-[400px] rounded-full bg-cyan-300/30 dark:bg-cyan-500/20 blur-[100px] mix-blend-multiply dark:mix-blend-screen"></div>
       
       <!-- 遮罩 -->
       <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/60 to-transparent dark:hidden"></div>
       <div class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent hidden dark:block"></div>
       
-      <!-- 装饰网格 -->
-      <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)]"></div>
+      <!-- 装饰网格 - 移动端隐藏 -->
+      <div class="hidden md:block absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)]"></div>
 
       <!-- 文字内容 - 左对齐，垂直居中 -->
       <div class="absolute inset-0 flex items-center">
         <div class="w-full pl-16 md:pl-20 lg:pl-24 pr-8 md:pr-16">
           <div class="max-w-2xl">
             <!-- 标签 -->
-            <span class="inline-block px-4 py-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-md rounded-full text-xs font-bold text-gray-700 dark:text-gray-200 mb-6 border border-gray-200 dark:border-white/10 shadow-lg uppercase tracking-wider">
+            <span class="inline-block px-4 py-1.5 bg-white/90 dark:bg-white/10 md:bg-white/80 md:backdrop-blur-md rounded-full text-xs font-bold text-gray-700 dark:text-gray-200 mb-6 border border-gray-200 dark:border-white/10 shadow-lg uppercase tracking-wider">
               {{ banner.tag || '精选推荐' }}
             </span>
             
