@@ -14,7 +14,7 @@
       </div>
 
       <div v-if="article.coverUrl" class="mb-8 rounded-2xl overflow-hidden">
-        <img :src="article.coverUrl" :alt="article.title" class="w-full max-h-96 object-cover" />
+        <img :src="article.coverUrl" :alt="article.title" class="w-full max-h-96 object-cover" loading="lazy" decoding="async" />
       </div>
 
       <!-- 章节分页模式 -->
@@ -148,7 +148,42 @@
 import { Eye, MessageCircle, Send, BookOpen, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core'
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import xml from 'highlight.js/lib/languages/xml'
+import css from 'highlight.js/lib/languages/css'
+import json from 'highlight.js/lib/languages/json'
+import bash from 'highlight.js/lib/languages/bash'
+import python from 'highlight.js/lib/languages/python'
+import java from 'highlight.js/lib/languages/java'
+import sql from 'highlight.js/lib/languages/sql'
+import markdown from 'highlight.js/lib/languages/markdown'
+import yaml from 'highlight.js/lib/languages/yaml'
+import dockerfile from 'highlight.js/lib/languages/dockerfile'
+import nginx from 'highlight.js/lib/languages/nginx'
+import scss from 'highlight.js/lib/languages/scss'
+
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('js', javascript)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('ts', typescript)
+hljs.registerLanguage('html', xml)
+hljs.registerLanguage('xml', xml)
+hljs.registerLanguage('css', css)
+hljs.registerLanguage('json', json)
+hljs.registerLanguage('bash', bash)
+hljs.registerLanguage('sh', bash)
+hljs.registerLanguage('shell', bash)
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('java', java)
+hljs.registerLanguage('sql', sql)
+hljs.registerLanguage('markdown', markdown)
+hljs.registerLanguage('yaml', yaml)
+hljs.registerLanguage('yml', yaml)
+hljs.registerLanguage('dockerfile', dockerfile)
+hljs.registerLanguage('nginx', nginx)
+hljs.registerLanguage('scss', scss)
 
 const markedInstance = new Marked(
   markedHighlight({
@@ -165,21 +200,27 @@ const markedInstance = new Marked(
 
 const route = useRoute()
 const { getArticleBySlug, getComments, submitComment } = useApi()
-const article = ref<any>(null)
-const comments = ref<any[]>([])
 const replyTo = ref<any>(null)
 const commentLoading = ref(false)
 const commentSuccess = ref(false)
 const commentError = ref('')
 const commentForm = reactive({ nickname: '', email: '', content: '', website: '' })
 
-try {
-  article.value = await getArticleBySlug(route.params.slug as string)
-} catch { article.value = null }
+const slug = route.params.slug as string
 
-if (article.value) {
-  try { comments.value = await getComments(article.value.id) || [] } catch { comments.value = [] }
-}
+const { data: articleData } = await useAsyncData(`article-${slug}`, () => getArticleBySlug(slug).catch(() => null), {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
+const article = computed(() => articleData.value)
+
+const { data: commentsData } = await useAsyncData(`comments-${slug}`, async () => {
+  if (!articleData.value) return []
+  return getComments(articleData.value.id).catch(() => [])
+}, {
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+})
+const comments = ref<any[]>(commentsData.value || [])
+watch(commentsData, (v) => { comments.value = v || [] })
 
 const renderedContent = computed(() => {
   if (!article.value) return ''
@@ -250,7 +291,7 @@ async function handleSubmitComment() {
     commentSuccess.value = true
     commentForm.content = ''
     replyTo.value = null
-    comments.value = await getComments(article.value.id) || []
+    comments.value = await getComments(articleData.value.id) || []
   } catch (e: any) {
     commentError.value = e.message || '评论提交失败'
   } finally {
