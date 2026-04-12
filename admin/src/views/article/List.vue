@@ -20,6 +20,7 @@
       <el-table-column prop="title" label="标题" min-width="200" />
       <el-table-column label="分类" width="120"><template #default="{ row }">{{ row.category?.categoryName }}</template></el-table-column>
       <el-table-column prop="viewCount" label="阅读" width="80" align="center" />
+      <el-table-column prop="likeCount" label="点赞" width="80" align="center"><template #default="{ row }"><span style="color:#f472b6">♥ {{ row.likeCount || 0 }}</span></template></el-table-column>
       <el-table-column label="置顶" width="70" align="center"><template #default="{ row }"><el-tag :type="row.isTop ? 'warning' : 'info'" size="small">{{ row.isTop ? '是' : '否' }}</el-tag></template></el-table-column>
       <el-table-column label="状态" width="80" align="center"><template #default="{ row }"><el-tag :type="row.isPublish ? 'success' : 'info'" size="small">{{ row.isPublish ? '已发布' : '草稿' }}</el-tag></template></el-table-column>
       <el-table-column label="创建时间" width="170"><template #default="{ row }">{{ formatDate(row.createTime) }}</template></el-table-column>

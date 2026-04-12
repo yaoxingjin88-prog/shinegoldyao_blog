@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { Home, UserCircle, FileText, FolderOpen, Compass, MessageCircle } from 'lucide-vue-next'
 
+const { t } = useI18n()
 const route = useRoute()
 const expanded = ref(false)
 let hoverTimer: ReturnType<typeof setTimeout> | null = null
@@ -44,14 +45,14 @@ function onLeave() {
   expanded.value = false
 }
 
-const navItems = [
-  { to: '/', label: '首页', icon: Home },
-  { to: '/about', label: '关于我', icon: UserCircle },
-  { to: '/articles', label: '文章', icon: FileText },
-  { to: '/projects', label: '项目', icon: FolderOpen },
-  { to: '/tools', label: '工具', icon: Compass },
-  { to: '/contact', label: '联系', icon: MessageCircle },
-]
+const navItems = computed(() => [
+  { to: '/', label: t('nav.home'), icon: Home },
+  { to: '/about', label: t('nav.about'), icon: UserCircle },
+  { to: '/articles', label: t('nav.articles'), icon: FileText },
+  { to: '/projects', label: t('nav.projects'), icon: FolderOpen },
+  { to: '/tools', label: t('nav.tools'), icon: Compass },
+  { to: '/contact', label: t('nav.contact'), icon: MessageCircle },
+])
 
 function isActive(path: string): boolean {
   if (path === '/') return route.path === '/'

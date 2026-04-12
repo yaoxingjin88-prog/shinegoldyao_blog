@@ -40,6 +40,13 @@ export class ArticleController {
     return this.articleService.findBySlug(slug);
   }
 
+  @Public()
+  @Post(':slug/like')
+  @ApiOperation({ summary: '文章点赞' })
+  like(@Param('slug') slug: string) {
+    return this.articleService.likeBySlug(slug);
+  }
+
   @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: '新增文章' })

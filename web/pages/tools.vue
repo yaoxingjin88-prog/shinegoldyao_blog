@@ -5,13 +5,13 @@
       <div class="text-center max-w-2xl mx-auto mb-16">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 text-sm mb-6">
           <Compass class="w-4 h-4" />
-          效率加速器
+          {{ $t('tools.badge') }}
         </div>
         <h1 class="text-4xl md:text-5xl font-extrabold mb-6">
-          实用 <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">工具</span>
+          {{ $t('tools.title') }} <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ $t('tools.titleHighlight') }}</span>
         </h1>
         <p class="text-gray-500 dark:text-gray-400 text-lg">
-          精心收集的开发者常用工具与资源导航，助你在开发旅途中事半功倍。
+          {{ $t('tools.subtitle') }}
         </p>
       </div>
 
@@ -22,7 +22,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="搜索工具..."
+            :placeholder="$t('tools.search')"
             class="w-full pl-12 pr-4 py-3 rounded-xl bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:focus:border-teal-400 transition-all"
           />
         </div>
@@ -35,7 +35,7 @@
             <component :is="category.icon" class="w-5 h-5" :class="category.iconClass" />
           </div>
           <h2 class="text-2xl font-bold">{{ category.name }}</h2>
-          <span class="text-sm text-gray-400 dark:text-gray-500">{{ category.tools.length }} 个工具</span>
+          <span class="text-sm text-gray-400 dark:text-gray-500">{{ category.tools.length }} {{ $t('tools.toolCount') }}</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <a
@@ -65,7 +65,7 @@
       <!-- 空状态 -->
       <div v-if="filteredCategories.length === 0" class="text-center py-20">
         <SearchX class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-        <p class="text-gray-400 dark:text-gray-500">没有找到匹配的工具</p>
+        <p class="text-gray-400 dark:text-gray-500">{{ $t('tools.empty') }}</p>
       </div>
     </div>
   </div>

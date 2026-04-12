@@ -89,6 +89,18 @@ export class ArticleService {
     return this.serialize(article);
   }
 
+  async likeBySlug(slug: string) {
+    const article = await this.prisma.article.findFirst({
+      where: { slug, deleteTime: 0n, isPublish: 1 },
+    });
+    if (!article) throw new NotFoundException('文章不存在');
+    await this.prisma.article.update({
+      where: { id: article.id },
+      data: { likeCount: { increment: 1 } },
+    });
+    return { likeCount: article.likeCount + 1 };
+  }
+
   async create(dto: CreateArticleDto) {
     const { tagIds, categoryId, ...rest } = dto;
     const article = await this.prisma.article.create({

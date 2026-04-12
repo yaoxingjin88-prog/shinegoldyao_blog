@@ -22,7 +22,7 @@
         {{ article.summary }}
       </p>
       <div class="mt-6 flex items-center text-sm font-medium text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-        阅读全文 <ChevronRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform text-blue-600 dark:text-blue-400" />
+        {{ $t('articles.readFull') }} <ChevronRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform text-blue-600 dark:text-blue-400" />
       </div>
     </div>
   </NuxtLink>

@@ -16,6 +16,7 @@ export function useApi() {
     getSkillCategories: () => $api<any[]>('/skill/categories'),
     getArticles: (params?: Record<string, any>) => $api<any>('/article', { params }),
     getArticleBySlug: (slug: string) => $api<any>(`/article/${slug}`),
+    likeArticle: (slug: string) => $api<{ likeCount: number }>(`/article/${slug}/like`, { method: 'POST' }),
     getCategories: () => $api<any[]>('/category'),
     getTags: () => $api<any[]>('/tag'),
     getProjects: () => $api<any[]>('/project'),

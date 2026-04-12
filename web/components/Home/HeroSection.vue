@@ -7,11 +7,11 @@
         <div class="flex-1 min-w-0">
           <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6 animate-fade-in-up">
             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            {{ config?.home_intro || '全栈开发者 / 开源爱好者 / 技术博主' }}
+            {{ config?.home_intro || $t('hero.defaultIntro') }}
           </div>
           <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s;">
-            {{ config?.site_subtitle || '架构代码，' }}<br />
-            <span class="gradient-text">{{ config?.site_subtitle_highlight || '书写未来。' }}</span>
+            {{ config?.site_subtitle || $t('hero.defaultSubtitle') }}<br />
+            <span class="gradient-text">{{ config?.site_subtitle_highlight || $t('hero.defaultHighlight') }}</span>
           </h1>
           <p class="text-base md:text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-xl leading-relaxed min-h-[3rem] animate-fade-in-up" style="animation-delay: 0.2s;">
             <span class="typewriter-text">{{ displayedText }}<span class="typewriter-cursor">|</span></span>
@@ -19,11 +19,11 @@
           <div class="flex items-center gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
             <NuxtLink to="/articles" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 text-white rounded-full font-medium transition-all hover:shadow-lg">
               <BookOpen class="w-4 h-4" />
-              阅读最新文章
+              {{ $t('hero.readArticles') }}
             </NuxtLink>
             <NuxtLink to="/contact" class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 rounded-full font-medium transition-colors">
               <Mail class="w-4 h-4" />
-              订阅更新
+              {{ $t('hero.subscribe') }}
             </NuxtLink>
           </div>
         </div>
@@ -66,7 +66,8 @@ import { BookOpen, Mail } from 'lucide-vue-next'
 const props = defineProps<{ config: Record<string, string> }>()
 
 // === 左侧打字机 ===
-const fullText = computed(() => props.config?.home_description || '你好，我是一名前端架构师与开源爱好者。在这里，我分享关于现代 Web 开发、高性能系统架构以及极客生活的深度思考。')
+const { t } = useI18n()
+const fullText = computed(() => props.config?.home_description || t('hero.defaultDescription'))
 const displayedText = ref('')
 const charIndex = ref(0)
 let timer: ReturnType<typeof setInterval> | null = null

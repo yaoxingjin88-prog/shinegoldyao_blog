@@ -7,13 +7,13 @@
           <p class="text-sm text-gray-500 dark:text-gray-400">{{ siteSubtitle }}</p>
         </div>
         <div>
-          <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">快速链接</h4>
+          <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">{{ $t('footer.quickLinks') }}</h4>
           <div class="space-y-2">
             <NuxtLink v-for="item in links" :key="item.to" :to="item.to" class="block text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{{ item.label }}</NuxtLink>
           </div>
         </div>
         <div>
-          <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">社交媒体</h4>
+          <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">{{ $t('footer.social') }}</h4>
           <div class="flex gap-3">
             <template v-for="s in socials" :key="s.id">
               <a v-if="s.linkUrl && /^https?:\/\//.test(s.linkUrl)" :href="s.linkUrl" target="_blank" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" :title="s.platformName">
@@ -64,17 +64,18 @@ function getSocialIcon(name: string): any {
 }
 
 const { getSocialLinks } = useApi()
-const links = [
-  { to: '/', label: '首页' },
-  { to: '/about', label: '关于我' },
-  { to: '/articles', label: '文章' },
-  { to: '/projects', label: '项目' },
-  { to: '/contact', label: '联系' },
-]
+const { t } = useI18n()
+const links = computed(() => [
+  { to: '/', label: t('nav.home') },
+  { to: '/about', label: t('nav.about') },
+  { to: '/articles', label: t('nav.articles') },
+  { to: '/projects', label: t('nav.projects') },
+  { to: '/contact', label: t('nav.contact') },
+])
 
 const { data: socials } = await useAsyncData('footer-socials', () => getSocialLinks().catch(() => []), {
   getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
 })
 const siteTitle = 'ShineGoldYao'
-const siteSubtitle = '一个专注于现代前端架构、系统底层原理与极客生活方式的个人技术博客。在这里，架构代码，书写未来。'
+const siteSubtitle = computed(() => t('footer.description'))
 </script>

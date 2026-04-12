@@ -37,7 +37,7 @@
           <div class="max-w-2xl">
             <!-- 标签 -->
             <span class="inline-block px-4 py-1.5 bg-white/90 dark:bg-white/10 md:bg-white/80 md:backdrop-blur-md rounded-full text-xs font-bold text-gray-700 dark:text-gray-200 mb-6 border border-gray-200 dark:border-white/10 shadow-lg uppercase tracking-wider">
-              {{ banner.tag || '精选推荐' }}
+              {{ banner.tag || $t('hero.featured') }}
             </span>
             
             <!-- 标题 -->
@@ -56,7 +56,7 @@
               :href="banner.linkUrl"
               class="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 text-white font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
             >
-              {{ banner.btnText || '阅读专栏' }}
+              {{ banner.btnText || $t('hero.readColumn') }}
               <ArrowRight class="w-4 h-4" />
             </a>
           </div>

@@ -3,8 +3,8 @@
     <div class="max-w-6xl mx-auto px-6">
       <div class="flex items-center justify-between mb-10">
         <div>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">核心武器库</h2>
-          <p class="text-gray-500 dark:text-gray-400">支撑现代 Web 应用的高性能技术栈</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $t('hero.techTitle') }}</h2>
+          <p class="text-gray-500 dark:text-gray-400">{{ $t('hero.techDesc') }}</p>
         </div>
       </div>
       <div v-for="cat in categories" :key="cat.id" class="mb-10 last:mb-0">

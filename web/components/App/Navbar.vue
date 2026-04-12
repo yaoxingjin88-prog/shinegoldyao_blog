@@ -12,21 +12,28 @@
             </span>
             <span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-600 to-blue-500 dark:from-gray-100 dark:via-sky-300 dark:to-sky-400">{{ siteTitle }}</span>
       </NuxtLink>
-      <div class="hidden md:flex items-center gap-8">
+      <div class="hidden md:flex items-center gap-8 min-w-0">
         <NuxtLink
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          class="relative text-sm font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors pb-1"
+          class="relative text-sm font-medium text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors pb-1 whitespace-nowrap"
           :class="$route.path === item.to ? 'text-blue-600 dark:text-blue-400 after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-4 after:h-0.5 after:bg-blue-600 after:dark:bg-blue-400 after:rounded-full' : ''"
         >{{ item.label }}</NuxtLink>
       </div>
       <div class="flex items-center gap-3">
         <NuxtLink to="/login" class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full border border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all">
           <LogIn class="w-4 h-4" />
-          登录
+          {{ $t('nav.login') }}
         </NuxtLink>
         <ClientOnly>
+          <button
+            @click="switchLang"
+            class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xs font-bold text-gray-600 dark:text-gray-300"
+            :title="locale === 'zh' ? 'Switch to English' : '切换到中文'"
+          >
+            {{ locale === 'zh' ? 'EN' : '中' }}
+          </button>
           <button
             @click="toggleMeteor"
             class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors relative"
@@ -44,6 +51,7 @@
             <div class="flex items-center gap-3">
               <div class="w-9 h-9"></div>
               <div class="w-9 h-9"></div>
+              <div class="w-9 h-9"></div>
             </div>
           </template>
         </ClientOnly>
@@ -59,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { Sun, Moon, Menu, LogIn, User, Sparkles } from 'lucide-vue-next'
+import { Sun, Moon, Menu, LogIn, User, Sparkles, Languages } from 'lucide-vue-next'
 
 const { meteorActive, toggleMeteor } = useMeteor()
 
@@ -74,14 +82,21 @@ const { data: navConfig } = await useAsyncData('nav-config', () => getSiteConfig
 })
 const siteTitle = computed(() => navConfig.value?.site_title || 'DevVoyage')
 
-const navItems = [
-  { to: '/', label: '首页' },
-  { to: '/about', label: '关于我' },
-  { to: '/articles', label: '文章' },
-  { to: '/projects', label: '项目' },
-  { to: '/tools', label: '工具' },
-  { to: '/contact', label: '联系' },
-]
+const { t, locale, locales, setLocale } = useI18n()
+const availableLocales = computed(() => (locales.value as any[]).filter((l: any) => l.code !== locale.value))
+function switchLang() {
+  const next = locale.value === 'zh' ? 'en' : 'zh'
+  setLocale(next)
+}
+
+const navItems = computed(() => [
+  { to: '/', label: t('nav.home') },
+  { to: '/about', label: t('nav.about') },
+  { to: '/articles', label: t('nav.articles') },
+  { to: '/projects', label: t('nav.projects') },
+  { to: '/tools', label: t('nav.tools') },
+  { to: '/contact', label: t('nav.contact') },
+])
 
 function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'

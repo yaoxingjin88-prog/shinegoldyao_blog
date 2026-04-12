@@ -28,6 +28,7 @@ export interface Article {
   htmlContent: string
   categoryId: string
   viewCount: number
+  likeCount: number
   isTop: number
   isPublish: number
   seoKeywords: string

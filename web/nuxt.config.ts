@@ -1,6 +1,21 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image', '@nuxtjs/i18n'],
+  i18n: {
+    locales: [
+      { code: 'zh', name: '中文', file: 'zh.json' },
+      { code: 'en', name: 'English', file: 'en.json' },
+    ],
+    defaultLocale: 'zh',
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale',
+      fallbackLocale: 'zh',
+    },
+  },
   colorMode: { classSuffix: '', preference: 'dark', fallback: 'dark' },
   runtimeConfig: {
     public: {
@@ -34,4 +49,24 @@ export default defineNuxtConfig({
   tailwindcss: { cssPath: '~/assets/css/main.css' },
   image: { quality: 80 },
   compatibilityDate: '2024-04-03',
+  experimental: {
+    payloadExtraction: true,
+  },
+  nitro: {
+    compressPublicAssets: { gzip: true, brotli: true },
+  },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('highlight.js')) return 'hljs'
+            if (id.includes('marked')) return 'marked'
+            if (id.includes('lucide-vue-next')) return 'icons'
+            if (id.includes('vue-i18n') || id.includes('@intlify')) return 'i18n'
+          },
+        },
+      },
+    },
+  },
 })

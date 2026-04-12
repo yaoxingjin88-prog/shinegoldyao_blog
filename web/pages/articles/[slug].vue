@@ -7,9 +7,16 @@
           <span v-for="t in article.tags" :key="t.tagId" class="text-sm px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300" :style="t.tag?.themeColor ? { background: t.tag.themeColor + '20', color: t.tag.themeColor } : {}">{{ t.tag?.tagName }}</span>
         </div>
         <h1 class="text-4xl font-bold mb-4">{{ article.title }}</h1>
-        <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           <span>{{ formatDate(article.publishTime || article.createTime) }}</span>
-          <span class="flex items-center gap-1"><Eye class="w-4 h-4" /> {{ article.viewCount }} 阅读</span>
+          <span class="flex items-center gap-1"><Eye class="w-4 h-4" /> {{ article.viewCount }} {{ $t('articles.reading') }}</span>
+          <span class="hidden md:block text-gray-200 dark:text-gray-700">|</span>
+          <ArticleShareBar
+            :title="article.title"
+            :url="`https://shinegoldyao.store/articles/${article.slug}`"
+            :summary="article.summary || article.seoDescription || ''"
+            :platforms="sharePlatforms"
+          />
         </div>
       </div>
 
@@ -23,8 +30,8 @@
         <div class="mb-10 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 p-6">
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
             <BookOpen class="w-5 h-5 text-blue-500" />
-            目录
-            <span class="text-sm font-normal text-gray-400">（共 {{ chapters.length }} 章）</span>
+            {{ $t('articles.chapter') }}
+            <span class="text-sm font-normal text-gray-400">({{ chapters.length }})</span>
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             <button
@@ -43,7 +50,7 @@
 
         <!-- 当前章节内容 -->
         <div ref="chapterRef" class="mb-6 flex items-center justify-between">
-          <span class="text-sm text-gray-400">第 {{ currentChapter + 1 }} / {{ chapters.length }} 章</span>
+          <span class="text-sm text-gray-400">{{ currentChapter + 1 }} / {{ chapters.length }}</span>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ chapters[currentChapter].title }}</h2>
         </div>
         <div class="prose prose-lg dark:prose-invert max-w-none article-content" v-html="chapters[currentChapter].html"></div>
@@ -73,34 +80,65 @@
       <!-- 短文章不分页 -->
       <div v-else class="prose prose-lg dark:prose-invert max-w-none article-content" v-html="renderedContent"></div>
 
+      <!-- 点赞区域 -->
+      <div class="mt-16 flex flex-col items-center gap-3">
+        <button
+          @click="handleLike"
+          :disabled="hasLiked"
+          class="group relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300"
+          :class="hasLiked
+            ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-500 cursor-default'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-pink-100 dark:hover:bg-pink-900/30 hover:text-pink-500 hover:scale-110 active:scale-95'"
+        >
+          <svg
+            class="w-7 h-7 transition-transform duration-300"
+            :class="likeAnimating ? 'scale-125' : ''"
+            viewBox="0 0 24 24"
+            :fill="hasLiked ? 'currentColor' : 'none'"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span
+            v-if="likeAnimating"
+            class="absolute -top-1 left-1/2 -translate-x-1/2 text-pink-500 text-sm font-bold animate-float-up pointer-events-none"
+          >+1</span>
+        </button>
+        <span class="text-sm font-medium" :class="hasLiked ? 'text-pink-500' : 'text-gray-400'">
+          {{ hasLiked ? $t('articles.liked') : $t('articles.likePrompt') }}
+        </span>
+        <span class="text-xs text-gray-400">{{ likeCount }} {{ $t('articles.likes') }}</span>
+      </div>
+
       <!-- 评论区 -->
       <section class="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
         <h2 class="text-2xl font-bold mb-8 flex items-center gap-2">
           <MessageCircle class="w-6 h-6" />
-          评论 <span class="text-base font-normal text-gray-400">({{ comments.length }})</span>
+          {{ $t('articles.commentSection') }} <span class="text-base font-normal text-gray-400">({{ comments.length }})</span>
         </h2>
 
         <!-- 发表评论表单 -->
         <div class="rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 mb-10">
-          <h3 class="text-lg font-semibold mb-4">{{ replyTo ? `回复 @${replyTo.nickname}` : '发表评论' }}</h3>
+          <h3 class="text-lg font-semibold mb-4">{{ replyTo ? `${$t('articles.reply')} @${replyTo.nickname}` : $t('articles.submit') }}</h3>
           <div v-if="replyTo" class="mb-3">
-            <button class="text-sm text-gray-500 hover:text-red-500 transition-colors" @click="replyTo = null">取消回复</button>
+            <button class="text-sm text-gray-500 hover:text-red-500 transition-colors" @click="replyTo = null">{{ $t('articles.cancelReply') }}</button>
           </div>
           <form class="space-y-4" @submit.prevent="handleSubmitComment">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input v-model="commentForm.nickname" type="text" placeholder="昵称 *" required class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-              <input v-model="commentForm.email" type="email" placeholder="邮箱 *" required class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+              <input v-model="commentForm.nickname" type="text" :placeholder="$t('articles.nickname') + ' *'" required class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+              <input v-model="commentForm.email" type="email" :placeholder="$t('articles.email') + ' *'" required class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
             </div>
-            <input v-model="commentForm.website" type="url" placeholder="网站（可选）" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-            <textarea v-model="commentForm.content" rows="4" placeholder="写下你的评论..." required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"></textarea>
+            <input v-model="commentForm.website" type="url" :placeholder="$t('articles.website')" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+            <textarea v-model="commentForm.content" rows="4" :placeholder="$t('articles.commentPlaceholder')" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"></textarea>
             <div class="flex items-center justify-between">
-              <p class="text-xs text-gray-400">支持 Markdown 格式</p>
+              <p class="text-xs text-gray-400">{{ $t('articles.markdownHint') }}</p>
               <button type="submit" :disabled="commentLoading" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-full transition-colors flex items-center gap-2">
                 <Send class="w-4 h-4" />
-                {{ commentLoading ? '提交中...' : '发表评论' }}
+                {{ commentLoading ? $t('articles.submitting') : $t('articles.submit') }}
               </button>
             </div>
-            <p v-if="commentSuccess" class="text-sm text-green-600">评论发表成功！</p>
+            <p v-if="commentSuccess" class="text-sm text-green-600">{{ $t('articles.commentSuccess') }}</p>
             <p v-if="commentError" class="text-sm text-red-500">{{ commentError }}</p>
           </form>
         </div>
@@ -118,7 +156,7 @@
                   <span class="text-xs text-gray-400">{{ formatDate(comment.createTime) }}</span>
                 </div>
                 <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ comment.content }}</p>
-                <button class="mt-2 text-xs text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click="replyTo = comment">回复</button>
+                <button class="mt-2 text-xs text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click="replyTo = comment">{{ $t('articles.reply') }}</button>
               </div>
             </div>
             <!-- 子评论 -->
@@ -132,15 +170,32 @@
                   <span class="text-xs text-gray-400">{{ formatDate(reply.createTime) }}</span>
                 </div>
                 <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
-                <button class="mt-2 text-xs text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click="replyTo = reply">回复</button>
+                <button class="mt-2 text-xs text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click="replyTo = reply">{{ $t('articles.reply') }}</button>
               </div>
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-10 text-gray-400 text-sm">暂无评论，来抢沙发吧 🎉</div>
+        <div v-else class="text-center py-10 text-gray-400 text-sm">{{ $t('articles.noComments') }}</div>
       </section>
     </article>
-    <div v-else class="max-w-4xl mx-auto px-6 text-center py-20 text-gray-400">文章不存在</div>
+
+    <!-- 加载骨架屏 -->
+    <div v-else class="max-w-4xl mx-auto px-6 pt-8 animate-pulse">
+      <div class="flex gap-3 mb-4">
+        <div class="h-6 w-16 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+        <div class="h-6 w-20 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+      </div>
+      <div class="h-10 w-3/4 bg-gray-200 dark:bg-gray-800 rounded-lg mb-4"></div>
+      <div class="h-5 w-1/2 bg-gray-200 dark:bg-gray-800 rounded mb-8"></div>
+      <div class="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl mb-8"></div>
+      <div class="space-y-3">
+        <div class="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/6"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -198,8 +253,9 @@ const markedInstance = new Marked(
   { breaks: true, gfm: true }
 )
 
+const { t, locale } = useI18n()
 const route = useRoute()
-const { getArticleBySlug, getComments, submitComment } = useApi()
+const { getArticleBySlug, getComments, submitComment, likeArticle, getSiteConfig } = useApi()
 const replyTo = ref<any>(null)
 const commentLoading = ref(false)
 const commentSuccess = ref(false)
@@ -208,16 +264,28 @@ const commentForm = reactive({ nickname: '', email: '', content: '', website: ''
 
 const slug = route.params.slug as string
 
-const { data: articleData } = await useAsyncData(`article-${slug}`, () => getArticleBySlug(slug).catch(() => null), {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
-})
+const [{ data: articleData }, { data: siteConfig }] = await Promise.all([
+  useAsyncData(`article-${slug}`, () => getArticleBySlug(slug).catch(() => null), {
+    lazy: true,
+    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  }),
+  useAsyncData('site-config', () => getSiteConfig().catch(() => ({})), {
+    lazy: true,
+    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  }),
+])
 const article = computed(() => articleData.value)
+const sharePlatforms = computed(() => {
+  const val = siteConfig.value?.share_platforms
+  return val ? val.split(',').filter(Boolean) : ['wechat', 'weibo', 'twitter', 'copy']
+})
 
 const { data: commentsData } = await useAsyncData(`comments-${slug}`, async () => {
   if (!articleData.value) return []
   return getComments(articleData.value.id).catch(() => [])
 }, {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  lazy: true,
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
 })
 const comments = ref<any[]>(commentsData.value || [])
 watch(commentsData, (v) => { comments.value = v || [] })
@@ -241,7 +309,7 @@ const chapters = computed(() => {
   // 如果 ## 前有内容（前言），也包含进来
   let i = 0
   if (parts[0].trim()) {
-    result.push({ title: '前言', html: markedInstance.parse(parts[0]) as string })
+    result.push({ title: t('articles.preface'), html: markedInstance.parse(parts[0]) as string })
     i = 1
   } else {
     i = 1
@@ -293,28 +361,50 @@ async function handleSubmitComment() {
     replyTo.value = null
     comments.value = await getComments(articleData.value.id) || []
   } catch (e: any) {
-    commentError.value = e.message || '评论提交失败'
+    commentError.value = e.message || t('articles.commentError')
   } finally {
     commentLoading.value = false
   }
 }
 
+const likeCount = ref(article.value?.likeCount || 0)
+const hasLiked = ref(false)
+const likeAnimating = ref(false)
+
+onMounted(() => {
+  const liked = localStorage.getItem(`article-liked-${slug}`)
+  if (liked) hasLiked.value = true
+})
+
+async function handleLike() {
+  if (hasLiked.value) return
+  try {
+    const res = await likeArticle(slug)
+    likeCount.value = res.likeCount
+    hasLiked.value = true
+    likeAnimating.value = true
+    localStorage.setItem(`article-liked-${slug}`, '1')
+    setTimeout(() => { likeAnimating.value = false }, 600)
+  } catch {}
+}
+
 function formatDate(d: string) {
   if (!d) return ''
-  return new Date(d).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+  const loc = locale.value === 'zh' ? 'zh-CN' : 'en-US'
+  return new Date(d).toLocaleDateString(loc, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 useHead({
-  title: article.value ? `${article.value.title} - 姚兴金的技术博客` : '文章 - 姚兴金的技术博客',
+  title: article.value ? `${article.value.title} - ${t('seo.articleSuffix')}` : `${t('seo.article')} - ${t('seo.articleSuffix')}`,
   meta: [
     { name: 'description', content: article.value?.seoDescription || article.value?.summary || '' },
-    { name: 'keywords', content: (article.value?.seoKeywords ? article.value.seoKeywords + ',' : '') + '姚兴金,ShineGoldYao,技术博客' },
-    { property: 'og:title', content: article.value?.title || '文章' },
+    { name: 'keywords', content: (article.value?.seoKeywords ? article.value.seoKeywords + ',' : '') + t('seo.defaultKeywords') },
+    { property: 'og:title', content: article.value?.title || t('seo.article') },
     { property: 'og:description', content: article.value?.seoDescription || article.value?.summary || '' },
     { property: 'og:url', content: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` },
     { property: 'og:type', content: 'article' },
     { property: 'og:image', content: article.value?.coverUrl || '' },
-    { property: 'article:author', content: '姚兴金' },
+    { property: 'article:author', content: 'ShineGoldYao' },
   ],
   link: [{ rel: 'canonical', href: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` }],
 })
@@ -515,4 +605,12 @@ useHead({
 
 .article-content strong { color: #111827; font-weight: 600; }
 .dark .article-content strong { color: #f9fafb; }
+
+@keyframes float-up {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-28px); }
+}
+.animate-float-up {
+  animation: float-up 0.6s ease-out forwards;
+}
 </style>

@@ -37,8 +37,8 @@
 
           <!-- 歌曲信息 -->
           <div class="px-5 pt-4 pb-2">
-            <h4 class="font-bold text-sm text-gray-900 dark:text-white truncate">{{ currentTrack?.title || '未知歌曲' }}</h4>
-            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{{ currentTrack?.artist || '未知歌手' }}</p>
+            <h4 class="font-bold text-sm text-gray-900 dark:text-white truncate">{{ currentTrack?.title || $t('musicPlayer.unknownTrack') }}</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{{ currentTrack?.artist || $t('musicPlayer.unknownArtist') }}</p>
           </div>
 
           <!-- 进度条 -->
@@ -100,7 +100,7 @@
               @click="showPlaylist = !showPlaylist"
               class="w-full px-5 py-2.5 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
             >
-              <span class="flex items-center gap-1.5"><ListMusic class="w-3.5 h-3.5" /> 播放列表 ({{ playlist.length }})</span>
+              <span class="flex items-center gap-1.5"><ListMusic class="w-3.5 h-3.5" /> {{ $t('musicPlayer.playlist') }} ({{ playlist.length }})</span>
               <ChevronUp class="w-3.5 h-3.5 transition-transform" :class="showPlaylist ? '' : 'rotate-180'" />
             </button>
             <Transition name="playlist">

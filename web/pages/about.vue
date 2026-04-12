@@ -6,10 +6,10 @@
       <div class="flex flex-col-reverse lg:flex-row gap-12 items-center lg:items-start mb-20">
         <div class="flex-1">
           <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
-            关于 <span class="gradient-text">{{ siteConfig?.about_name || siteConfig?.site_title || 'Me' }}</span>
+            {{ $t('about.aboutPrefix') }} <span class="gradient-text">{{ siteConfig?.about_name || siteConfig?.site_title || 'Me' }}</span>
           </h1>
           <div class="space-y-5 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-            <p class="whitespace-pre-line">{{ siteConfig?.about_intro || siteConfig?.home_description || '你好，我是一名热爱技术的开发者，专注于现代 Web 开发与开源项目。' }}</p>
+            <p class="whitespace-pre-line">{{ siteConfig?.about_intro || siteConfig?.home_description || $t('hero.defaultDescription') }}</p>
           </div>
         </div>
         <div class="flex-shrink-0">
@@ -28,7 +28,7 @@
         <!-- 左侧：时间线 -->
         <div class="w-full lg:w-2/5" v-if="experiences.length">
           <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-            <Briefcase class="w-6 h-6 text-blue-600" /> 学习轨迹
+            <Briefcase class="w-6 h-6 text-blue-600" /> {{ $t('about.timeline') }}
           </h3>
           <div class="space-y-8 border-l-2 border-gray-200 dark:border-gray-700 pl-6 ml-3 relative">
             <div v-for="(exp, i) in experiences" :key="exp.id" class="relative">
@@ -37,7 +37,7 @@
                 <h4 class="text-lg font-bold text-gray-900 dark:text-white">{{ exp.position }} @ {{ exp.orgName }}</h4>
               </div>
               <p :class="['text-sm mb-2', i === 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400']">
-                {{ exp.startDate?.slice(0, 7) }} - {{ exp.endDate?.slice(0, 7) || '至今' }}
+                {{ exp.startDate?.slice(0, 7) }} - {{ exp.endDate?.slice(0, 7) || $t('about.present') }}
               </p>
               <p v-if="exp.description" class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ exp.description }}</p>
             </div>
@@ -48,7 +48,7 @@
         <div :class="experiences.length ? 'w-full lg:w-3/5' : 'w-full'">
           <template v-if="skillCategories.length">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-              <Layers class="w-6 h-6 text-cyan-500" /> 技术栈
+              <Layers class="w-6 h-6 text-cyan-500" /> {{ $t('about.techStack') }}
             </h3>
             <div :class="experiences.length ? 'grid grid-cols-1 md:grid-cols-2 gap-5' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'">
               <div
@@ -118,13 +118,16 @@ const { data } = await useAsyncData('about', async () => {
   ])
   return { config, skills, exps }
 }, {
-  server: true,
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  lazy: true,
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
 })
 
-siteConfig.value = data.value?.config as Record<string, string> || {}
-skillCategories.value = data.value?.skills as any[] || []
-experiences.value = data.value?.exps as any[] || []
+watch(data, (val) => {
+  if (!val) return
+  siteConfig.value = val.config as Record<string, string> || {}
+  skillCategories.value = val.skills as any[] || []
+  experiences.value = val.exps as any[] || []
+}, { immediate: true })
 
 useHead({
   title: '关于姚兴金 - ' + (siteConfig.value?.site_title || 'ShineGoldYao'),

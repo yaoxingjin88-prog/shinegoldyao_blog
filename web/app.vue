@@ -3,8 +3,8 @@
     <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
   </NuxtLayout>
   <ClientOnly>
-    <FlowerBurst v-if="!isMobile" />
-    <MeteorShower
+    <LazyFlowerBurst v-if="!isMobile" />
+    <LazyMeteorShower
       v-if="!isMobile"
       :active="meteorActive"
       :spawn-interval="spawnInterval"
@@ -16,11 +16,11 @@
 
 <script setup lang="ts">
 const { meteorActive, loadConfig, spawnInterval, baseSpeed, maxMeteors } = useMeteor()
-await loadConfig()
 
 const isMobile = ref(false)
 onMounted(() => {
   isMobile.value = window.innerWidth < 768
+  loadConfig()
 })
 </script>
 

@@ -66,12 +66,13 @@ const props = defineProps<{
   config?: Record<string, string>
 }>()
 
+const { t } = useI18n()
 const codeLines = computed(() => ({
-  comment1: props.config?.code_comment1 || '欢迎来到我的技术世界',
-  name: props.config?.about_name || props.config?.site_title || '你',
-  goal: props.config?.code_goal || '成为更好的程序员',
-  comment2: props.config?.code_comment2 || '开启学习之旅',
-  log: props.config?.code_log || '每天进步一点点!',
+  comment1: props.config?.code_comment1 || t('codeBlock.defaultComment1'),
+  name: props.config?.about_name || props.config?.site_title || t('codeBlock.defaultName'),
+  goal: props.config?.code_goal || t('codeBlock.defaultGoal'),
+  comment2: props.config?.code_comment2 || t('codeBlock.defaultComment2'),
+  log: props.config?.code_log || t('codeBlock.defaultLog'),
 }))
 
 const formattedSkills = computed(() => {

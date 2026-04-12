@@ -105,6 +105,7 @@ model Article {
   htmlContent    String?              @map("html_content") @db.LongText
   categoryId     BigInt               @map("category_id") @db.UnsignedBigInt
   viewCount      Int                  @default(0) @map("view_count")
+  likeCount      Int                  @default(0) @map("like_count")
   isTop          Int                  @default(0) @map("is_top") @db.TinyInt
   isPublish      Int                  @default(0) @map("is_publish") @db.TinyInt
   seoKeywords    String               @default("") @map("seo_keywords") @db.VarChar(255)

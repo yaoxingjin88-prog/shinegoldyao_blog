@@ -7,13 +7,13 @@
         <div class="w-full md:w-1/2">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 text-sm mb-6">
             <Sparkles class="w-4 h-4" />
-            开始一个新的故事
+            {{ $t('contact.badge') }}
           </div>
           <h1 class="text-5xl font-extrabold tracking-tight mb-6">
-            建立 <span class="gradient-text">连接</span>
+            {{ $t('contact.title') }} <span class="gradient-text">{{ $t('contact.titleHighlight') }}</span>
           </h1>
           <p class="text-gray-600 dark:text-gray-400 text-lg mb-10 leading-relaxed">
-            无论是探讨前沿的系统架构设计，开源项目的合作开发，还是单纯想喝杯咖啡聊聊极客生活，我都很期待收到你的消息。
+            {{ $t('contact.subtitle') }}
           </p>
 
           <div class="space-y-6">
@@ -35,21 +35,21 @@
           <div class="glass-card p-8">
             <form class="space-y-5" @submit.prevent="handleSubmit">
               <div class="space-y-2">
-                <label class="text-sm font-medium">阁下尊姓大名</label>
-                <input v-model="form.nickname" type="text" required maxlength="50" placeholder="John Doe" class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all" />
+                <label class="text-sm font-medium">{{ $t('contact.nameLabel') }}</label>
+                <input v-model="form.nickname" type="text" required maxlength="50" :placeholder="$t('contact.namePlaceholder')" class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all" />
               </div>
               <div class="space-y-2">
-                <label class="text-sm font-medium">您的邮箱</label>
-                <input v-model="form.email" type="email" required placeholder="john@example.com" class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all" />
+                <label class="text-sm font-medium">{{ $t('contact.emailLabel') }}</label>
+                <input v-model="form.email" type="email" required :placeholder="$t('contact.emailPlaceholder')" class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all" />
               </div>
               <div class="space-y-2">
-                <label class="text-sm font-medium">有什么想交流的？</label>
-                <textarea v-model="form.content" required maxlength="1000" rows="4" placeholder="分享你的奇思妙想..." class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all resize-none"></textarea>
+                <label class="text-sm font-medium">{{ $t('contact.contentLabel') }}</label>
+                <textarea v-model="form.content" required maxlength="1000" rows="4" :placeholder="$t('contact.contentPlaceholder')" class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all resize-none"></textarea>
               </div>
               <button type="submit" :disabled="loading" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold tracking-wide hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50">
-                {{ loading ? '发送中...' : '发送讯息' }}
+                {{ loading ? $t('contact.sending') : $t('contact.send') }}
               </button>
-              <p v-if="success" class="text-center text-green-600 dark:text-green-400 text-sm">留言发送成功，感谢你的反馈！</p>
+              <p v-if="success" class="text-center text-green-600 dark:text-green-400 text-sm">{{ $t('contact.success') }}</p>
               <p v-if="error" class="text-center text-red-500 text-sm">{{ error }}</p>
             </form>
           </div>
@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { Sparkles, Mail, Github, MessageCircle, Globe, Twitter, Linkedin } from 'lucide-vue-next'
 
+const { t } = useI18n()
 const { submitMessage, getSocialLinks } = useApi()
 const loading = ref(false)
 const success = ref(false)
@@ -70,7 +71,8 @@ const error = ref('')
 const form = reactive({ nickname: '', email: '', content: '', contact: '' })
 
 const { data: socials } = await useAsyncData('contact-socials', () => getSocialLinks().catch(() => []), {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  lazy: true,
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
 })
 
 const iconMap: Record<string, any> = {
@@ -114,7 +116,7 @@ async function handleSubmit() {
     success.value = true
     Object.assign(form, { nickname: '', email: '', content: '', contact: '' })
   } catch (e: any) {
-    error.value = e?.message || '提交失败，请稍后重试'
+    error.value = e?.message || t('contact.error')
   } finally {
     loading.value = false
   }

@@ -1,40 +1,39 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   title?: string
   description?: string
   keywords?: string
   image?: string
   url?: string
   type?: string
-}>(), {
-  title: '姚兴金 - ShineGoldYao 个人技术博客',
-  description: '姚兴金（ShineGoldYao）的个人技术博客，专注于全栈开发、前端工程化、后端架构与开源项目分享。',
-  keywords: '姚兴金,ShineGoldYao,个人技术博客,全栈开发',
-  image: '',
-  url: '',
-  type: 'website',
-})
+}>()
+
+const { t } = useI18n()
+const resolvedTitle = computed(() => props.title || t('seo.defaultTitle'))
+const resolvedDescription = computed(() => props.description || t('seo.defaultDescription'))
+const resolvedKeywords = computed(() => props.keywords || t('seo.defaultKeywords'))
+const resolvedType = computed(() => props.type || 'website')
 
 const siteUrl = 'https://shinegoldyao.store'
 const fullUrl = computed(() => props.url ? `${siteUrl}${props.url}` : siteUrl)
 const ogImage = computed(() => props.image || `${siteUrl}/favicon.svg`)
 
 useHead({
-  title: props.title,
+  title: resolvedTitle,
   meta: [
-    { name: 'description', content: props.description },
-    { name: 'keywords', content: props.keywords },
-    { property: 'og:title', content: props.title },
-    { property: 'og:description', content: props.description },
-    { property: 'og:url', content: fullUrl.value },
-    { property: 'og:image', content: ogImage.value },
-    { property: 'og:type', content: props.type },
-    { name: 'twitter:title', content: props.title },
-    { name: 'twitter:description', content: props.description },
-    { name: 'twitter:image', content: ogImage.value },
+    { name: 'description', content: resolvedDescription },
+    { name: 'keywords', content: resolvedKeywords },
+    { property: 'og:title', content: resolvedTitle },
+    { property: 'og:description', content: resolvedDescription },
+    { property: 'og:url', content: fullUrl },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:type', content: resolvedType },
+    { name: 'twitter:title', content: resolvedTitle },
+    { name: 'twitter:description', content: resolvedDescription },
+    { name: 'twitter:image', content: ogImage },
   ],
   link: [
-    { rel: 'canonical', href: fullUrl.value },
+    { rel: 'canonical', href: fullUrl },
   ],
 })
 </script>

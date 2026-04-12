@@ -8,7 +8,7 @@
       <el-collapse-item v-for="cat in list" :key="cat.id" :name="cat.id">
         <template #title>
           <div style="display:flex;align-items:center;gap:8px">
-            <el-tag :color="cat.themeColor" size="small" style="color:#fff;min-width:80px;text-align:center">{{ cat.categoryName }}</el-tag>
+            <el-tag size="small" style="min-width:80px;text-align:center">{{ cat.categoryName }}</el-tag>
             <span style="color:#999;font-size:12px;min-width:40px">({{ cat.skills?.length || 0 }}项)</span>
             <el-button link type="primary" size="small" @click.stop="openCatDialog(cat)">编辑</el-button>
             <el-popconfirm title="确定删除该分类？" @confirm="deleteCat(cat.id)"><template #reference><el-button link type="danger" size="small" @click.stop>删除</el-button></template></el-popconfirm>
@@ -36,7 +36,6 @@
     <el-dialog v-model="catDialog" :title="catEditId ? '编辑分类' : '新增分类'" width="450px">
       <el-form :model="catForm" label-width="80px">
         <el-form-item label="名称"><el-input v-model="catForm.categoryName" /></el-form-item>
-        <el-form-item label="颜色"><el-color-picker v-model="catForm.themeColor" /></el-form-item>
         <el-form-item label="排序"><el-input-number v-model="catForm.sort" :min="0" /></el-form-item>
       </el-form>
       <template #footer><el-button @click="catDialog=false">取消</el-button><el-button type="primary" @click="submitCat">确定</el-button></template>

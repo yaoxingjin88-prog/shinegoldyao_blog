@@ -1,9 +1,18 @@
 <template>
   <div>
     <h3 style="margin-bottom:20px">网站配置</h3>
-    <el-form label-width="120px" style="max-width:600px">
+    <el-form label-width="130px" label-position="top" style="max-width:900px">
       <el-form-item v-for="(value, key) in configs" :key="key" :label="configLabels[key] || key">
-        <el-input v-if="textareaKeys.includes(key)" v-model="configs[key]" type="textarea" :rows="3" />
+        <template v-if="key === 'share_platforms'">
+          <el-checkbox-group v-model="sharePlatforms" @change="onShareChange">
+            <el-checkbox label="wechat">微信</el-checkbox>
+            <el-checkbox label="weibo">微博</el-checkbox>
+            <el-checkbox label="twitter">Twitter</el-checkbox>
+            <el-checkbox label="copy">复制链接</el-checkbox>
+          </el-checkbox-group>
+          <div style="font-size:12px;color:#999;margin-top:4px">勾选后前台文章页将显示对应的分享按钮</div>
+        </template>
+        <el-input v-else-if="textareaKeys.includes(key)" v-model="configs[key]" type="textarea" :rows="3" />
         <el-input v-else v-model="configs[key]" />
       </el-form-item>
       <el-form-item><el-button type="primary" :loading="loading" @click="handleSave">保存配置</el-button></el-form-item>
@@ -25,6 +34,7 @@ const configLabels: Record<string, string> = {
   avatar: '个人头像URL', seo_keywords: 'SEO关键词', seo_description: 'SEO描述',
   code_skills: '代码展示 - 技能列表', code_goal: '代码展示 - 目标', code_log: '代码展示 - 日志',
   code_comment_1: '代码展示 - 注释1', code_comment_2: '代码展示 - 注释2',
+  share_platforms: '文章分享渠道',
 }
 const textareaKeys = ['seo_description', 'home_intro', 'home_description', 'about_intro']
 
@@ -37,10 +47,22 @@ async function handleSave() {
   } finally { loading.value = false }
 }
 
+const sharePlatforms = ref<string[]>([])
+
+function onShareChange(val: string[]) {
+  configs['share_platforms'] = val.join(',')
+}
+
 const defaultKeys = Object.keys(configLabels)
 
 onMounted(async () => {
   const data = await siteApi.getConfig()
   defaultKeys.forEach(k => { configs[k] = data?.[k] || '' })
+  if (configs['share_platforms']) {
+    sharePlatforms.value = configs['share_platforms'].split(',').filter(Boolean)
+  } else {
+    sharePlatforms.value = ['wechat', 'weibo', 'twitter', 'copy']
+    configs['share_platforms'] = 'wechat,weibo,twitter,copy'
+  }
 })
 </script>

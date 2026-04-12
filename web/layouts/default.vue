@@ -9,6 +9,8 @@
       <slot />
     </main>
     <AppFooter />
-    <AppMusicPlayer />
+    <ClientOnly>
+      <LazyAppMusicPlayer />
+    </ClientOnly>
   </div>
 </template>
