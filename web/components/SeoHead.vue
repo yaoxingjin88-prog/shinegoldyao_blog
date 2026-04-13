@@ -9,32 +9,34 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const resolvedTitle = computed(() => props.title || t('seo.defaultTitle'))
-const resolvedDescription = computed(() => props.description || t('seo.defaultDescription'))
-const resolvedKeywords = computed(() => props.keywords || t('seo.defaultKeywords'))
-const resolvedType = computed(() => props.type || 'website')
-
 const siteUrl = 'https://shinegoldyao.store'
-const fullUrl = computed(() => props.url ? `${siteUrl}${props.url}` : siteUrl)
-const ogImage = computed(() => props.image || `${siteUrl}/favicon.svg`)
 
-useHead({
-  title: resolvedTitle,
-  meta: [
-    { name: 'description', content: resolvedDescription },
-    { name: 'keywords', content: resolvedKeywords },
-    { property: 'og:title', content: resolvedTitle },
-    { property: 'og:description', content: resolvedDescription },
-    { property: 'og:url', content: fullUrl },
-    { property: 'og:image', content: ogImage },
-    { property: 'og:type', content: resolvedType },
-    { name: 'twitter:title', content: resolvedTitle },
-    { name: 'twitter:description', content: resolvedDescription },
-    { name: 'twitter:image', content: ogImage },
-  ],
-  link: [
-    { rel: 'canonical', href: fullUrl },
-  ],
+useHead(() => {
+  const title = props.title || t('seo.defaultTitle')
+  const description = props.description || t('seo.defaultDescription')
+  const keywords = props.keywords || t('seo.defaultKeywords')
+  const type = props.type || 'website'
+  const url = props.url ? `${siteUrl}${props.url}` : siteUrl
+  const image = props.image || `${siteUrl}/favicon.svg`
+
+  return {
+    title,
+    meta: [
+      { name: 'description', content: description },
+      { name: 'keywords', content: keywords },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: description },
+      { property: 'og:url', content: url },
+      { property: 'og:image', content: image },
+      { property: 'og:type', content: type },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image', content: image },
+    ],
+    link: [
+      { rel: 'canonical', href: url },
+    ],
+  }
 })
 </script>
 
