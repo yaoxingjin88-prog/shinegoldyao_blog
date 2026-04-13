@@ -10,7 +10,6 @@
     </main>
     <AppFooter />
     <ClientOnly>
-      <LazyAppMusicPlayer />
       <LazyAppAiChat />
     </ClientOnly>
   </div>
