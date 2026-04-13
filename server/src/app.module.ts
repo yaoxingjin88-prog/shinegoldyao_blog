@@ -26,6 +26,7 @@ import { MusicModule } from './modules/music/music.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ToolModule } from './modules/tool/tool.module';
 import { TrackModule } from './modules/track/track.module';
+import { AiChatModule } from './modules/ai-chat/ai-chat.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { TrackModule } from './modules/track/track.module';
     UploadModule,
     ToolModule,
     TrackModule,
+    AiChatModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

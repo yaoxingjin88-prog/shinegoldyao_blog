@@ -12,4 +12,5 @@ export default () => ({
     dir: process.env.UPLOAD_DIR || './uploads',
     maxSize: parseInt(process.env.UPLOAD_MAX_SIZE, 10) || 5242880,
   },
+  dashscopeApiKey: process.env.DASHSCOPE_API_KEY || '',
 });

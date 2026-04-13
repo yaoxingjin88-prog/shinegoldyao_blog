@@ -11,6 +11,7 @@
     <AppFooter />
     <ClientOnly>
       <LazyAppMusicPlayer />
+      <LazyAppAiChat />
     </ClientOnly>
   </div>
 </template>
