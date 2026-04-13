@@ -403,7 +403,7 @@ useHead({
     { property: 'og:description', content: article.value?.seoDescription || article.value?.summary || '' },
     { property: 'og:url', content: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` },
     { property: 'og:type', content: 'article' },
-    { property: 'og:image', content: article.value?.coverUrl || '' },
+    { property: 'og:image', content: article.value?.coverUrl ? (article.value.coverUrl.startsWith('http') ? article.value.coverUrl : `https://shinegoldyao.store${article.value.coverUrl}`) : 'https://shinegoldyao.store/favicon.jpg' },
     { property: 'article:author', content: 'ShineGoldYao' },
   ],
   link: [{ rel: 'canonical', href: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` }],

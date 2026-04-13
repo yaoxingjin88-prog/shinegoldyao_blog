@@ -17,7 +17,7 @@ useHead(() => {
   const keywords = props.keywords || t('seo.defaultKeywords')
   const type = props.type || 'website'
   const url = props.url ? `${siteUrl}${props.url}` : siteUrl
-  const image = props.image || `${siteUrl}/favicon.svg`
+  const image = props.image || `${siteUrl}/favicon.jpg`
 
   return {
     title,

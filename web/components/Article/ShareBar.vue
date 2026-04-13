@@ -13,6 +13,17 @@
           <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05a6.582 6.582 0 0 1-.261-1.828c0-3.508 3.228-6.348 7.212-6.348.244 0 .479.018.718.044C16.388 4.893 12.86 2.188 8.691 2.188zm-2.41 4.202a1.12 1.12 0 1 1 0 2.24 1.12 1.12 0 0 1 0-2.24zm4.83 0a1.12 1.12 0 1 1 0 2.24 1.12 1.12 0 0 1 0-2.24zM16.453 8.853c-3.502 0-6.341 2.479-6.341 5.537 0 3.06 2.84 5.538 6.341 5.538a7.63 7.63 0 0 0 2.226-.333.72.72 0 0 1 .593.08l1.501.876a.272.272 0 0 0 .138.045.242.242 0 0 0 .238-.243c0-.06-.023-.118-.039-.175l-.308-1.163a.488.488 0 0 1 .176-.551C22.625 17.49 24 15.637 24 14.39c0-3.058-2.839-5.537-6.341-5.537h-.003l-.003-.001zm-2.093 3.131a.929.929 0 1 1 0 1.858.929.929 0 0 1 0-1.858zm4.186 0a.929.929 0 1 1 0 1.858.929.929 0 0 1 0-1.858z"/>
         </svg>
       </button>
+      <!-- 微信引导提示 -->
+      <Transition name="qr-pop">
+        <div
+          v-if="showWechatGuide"
+          class="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 p-3 rounded-xl shadow-xl border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 z-50 text-center"
+        >
+          <p class="text-sm text-gray-700 dark:text-gray-200">请点击右上角 <strong>⋯</strong></p>
+          <p class="text-xs text-gray-400 mt-1">选择「转发给朋友」或「分享到朋友圈」</p>
+          <div class="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rotate-45 bg-white dark:bg-gray-900 border-l border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+      </Transition>
       <!-- 微信二维码弹窗 -->
       <Transition name="qr-pop">
         <div
@@ -89,18 +100,25 @@ const props = withDefaults(defineProps<{
 })
 
 const showWechatQR = ref(false)
+const showWechatGuide = ref(false)
 const copied = ref(false)
 const wechatRef = ref<HTMLElement | null>(null)
 
 const shareUrl = computed(() => props.url)
 const isMobile = ref(false)
+const isWechat = ref(false)
 
 onMounted(() => {
-  isMobile.value = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+  const ua = navigator.userAgent
+  isMobile.value = /Android|iPhone|iPad|iPod|Mobile/i.test(ua)
+  isWechat.value = /MicroMessenger/i.test(ua)
 })
 
 function handleWechat() {
-  if (isMobile.value && navigator.share) {
+  if (isWechat.value) {
+    showWechatGuide.value = true
+    setTimeout(() => { showWechatGuide.value = false }, 3000)
+  } else if (isMobile.value && navigator.share) {
     navigator.share({
       title: props.title,
       text: props.summary || props.title,
