@@ -34,6 +34,7 @@
           <el-menu-item index="/effects">特效控制</el-menu-item>
           <el-menu-item index="/tool">工具导航</el-menu-item>
           <el-menu-item index="/track">访问统计</el-menu-item>
+          <el-menu-item index="/ai-chat">AI 聊天记录</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -82,6 +83,7 @@ const pageTitleMap: Record<string, string> = {
   '/effects': '特效控制',
   '/tool': '工具导航管理',
   '/track': '访问统计',
+  '/ai-chat': 'AI 聊天记录',
 }
 
 const currentPageTitle = computed(() => {

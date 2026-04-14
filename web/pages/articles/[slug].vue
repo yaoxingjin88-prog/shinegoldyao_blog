@@ -371,6 +371,12 @@ const likeCount = ref(article.value?.likeCount || 0)
 const hasLiked = ref(false)
 const likeAnimating = ref(false)
 
+watch(article, (val) => {
+  if (val && !hasLiked.value) {
+    likeCount.value = val.likeCount || 0
+  }
+}, { immediate: true })
+
 onMounted(() => {
   const liked = localStorage.getItem(`article-liked-${slug}`)
   if (liked) hasLiked.value = true

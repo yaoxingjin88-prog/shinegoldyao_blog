@@ -12,7 +12,6 @@ export class SkillController {
 
   @Public()
   @Get('categories')
-  @CacheTTL(120)
   @ApiOperation({ summary: '获取技术分类（含技能列表）' })
   findCategories() {
     return this.skillService.findCategories();

@@ -157,7 +157,7 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const inputEl = ref<HTMLTextAreaElement | null>(null)
 const isMobile = ref(false)
 
-const MAX_CHAT_COUNT = 2
+const MAX_CHAT_COUNT = 5
 const chatCount = ref(0)
 const isLimited = computed(() => chatCount.value >= MAX_CHAT_COUNT)
 

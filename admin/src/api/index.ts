@@ -100,6 +100,10 @@ export const trackApi = {
   stats: () => request.get<any, any>('/track/stats'),
 }
 
+export const aiChatApi = {
+  logs: (params?: Record<string, any>) => request.get<any, any>('/ai-chat/logs', { params }),
+}
+
 export const uploadApi = {
   uploadImage: (file: File) => {
     const formData = new FormData()

@@ -8,7 +8,7 @@
           <el-form-item label="Slug" prop="slug"><el-input v-model="form.slug" placeholder="URL路径，如 my-first-post" /></el-form-item>
           <el-form-item label="摘要"><el-input v-model="form.summary" type="textarea" :rows="3" placeholder="文章摘要" /></el-form-item>
           <el-form-item label="内容" prop="content">
-            <MdEditor v-model="form.content" :style="{ width: '100%', height: '500px' }" />
+            <MdEditor v-if="editorVisible" v-model="form.content" :style="{ width: '100%', height: '500px' }" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
@@ -56,6 +56,7 @@ const loading = ref(false)
 const categories = ref<ArticleCategory[]>([])
 const tags = ref<ArticleTag[]>([])
 const isEdit = computed(() => !!route.params.id)
+const editorVisible = ref(false)
 
 const form = reactive({
   title: '', slug: '', coverUrl: '', summary: '', content: '',
@@ -111,5 +112,12 @@ onMounted(async () => {
       sessionStorage.removeItem('gitee_import')
     }
   }
+  // 延迟显示编辑器，避免路由切换时的DOM错误
+  editorVisible.value = true
+})
+
+onBeforeUnmount(() => {
+  // 隐藏编辑器，避免组件卸载时的DOM错误
+  editorVisible.value = false
 })
 </script>

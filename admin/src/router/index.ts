@@ -29,6 +29,7 @@ const router = createRouter({
         { path: 'effects', component: () => import('../views/effects/Index.vue') },
         { path: 'tool', component: () => import('../views/tool/Index.vue') },
         { path: 'track', component: () => import('../views/track/Index.vue') },
+        { path: 'ai-chat', component: () => import('../views/ai-chat/Index.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' },

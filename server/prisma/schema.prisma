@@ -283,6 +283,19 @@ model VisitLog {
   @@map("visit_log")
 }
 
+model AiChatLog {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  ip         String   @default("") @db.VarChar(50)
+  userAgent  String   @default("") @map("user_agent") @db.VarChar(500)
+  question   String   @db.Text
+  model      String   @default("qwen-turbo") @db.VarChar(50)
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@index([ip])
+  @@index([createTime])
+  @@map("ai_chat_log")
+}
+
 model AdminUser {
   id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   username      String    @db.VarChar(50)

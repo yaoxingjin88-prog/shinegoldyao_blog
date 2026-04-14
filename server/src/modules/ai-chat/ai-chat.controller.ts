@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { AiChatService } from './ai-chat.service';
 import { ChatRequestDto } from './dto/chat.dto';
@@ -15,7 +15,14 @@ export class AiChatController {
   @Post('stream')
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'AI 对话（SSE 流式响应）' })
-  async streamChat(@Body() dto: ChatRequestDto, @Res() res: Response) {
-    return this.aiChatService.streamChat(dto, res);
+  async streamChat(@Body() dto: ChatRequestDto, @Req() req: Request, @Res() res: Response) {
+    return this.aiChatService.streamChat(dto, req, res);
+  }
+
+  @ApiBearerAuth()
+  @Get('logs')
+  @ApiOperation({ summary: '获取 AI 聊天记录（需认证）' })
+  findAll(@Query() query: { page?: number; pageSize?: number }) {
+    return this.aiChatService.findAll(query);
   }
 }

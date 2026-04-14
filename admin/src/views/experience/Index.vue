@@ -8,7 +8,7 @@
       <el-table-column label="类型" width="80" align="center"><template #default="{ row }"><el-tag :type="row.type===1?'success':'primary'" size="small">{{ row.type===1?'教育':'工作' }}</el-tag></template></el-table-column>
       <el-table-column prop="orgName" label="机构/公司" />
       <el-table-column prop="position" label="职位/专业" />
-      <el-table-column label="时间" width="200"><template #default="{ row }">{{ row.startDate?.slice(0,10) }} ~ {{ row.endDate?.slice(0,10) || '至今' }}</template></el-table-column>
+      <el-table-column label="时间" width="200"><template #default="{ row }">{{ formatDate(row.startDate) }} ~ {{ formatDate(row.endDate) || '至今' }}</template></el-table-column>
       <el-table-column prop="sort" label="排序" width="70" align="center" />
       <el-table-column label="操作" width="150">
         <template #default="{ row }">
@@ -55,6 +55,13 @@ async function handleSubmit() {
   else await experienceApi.create(form)
   ElMessage.success(editId.value ? '更新成功' : '创建成功')
   dialogVisible.value = false; loadData()
+}
+
+function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return ''
+  if (typeof date === 'string') return date.slice(0, 10)
+  if (date instanceof Date) return date.toISOString().slice(0, 10)
+  return String(date).slice(0, 10)
 }
 
 async function handleDelete(id: string) { await experienceApi.remove(id); ElMessage.success('删除成功'); loadData() }

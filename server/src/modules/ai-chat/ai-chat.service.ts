@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 import { ChatRequestDto } from './dto/chat.dto';
 
 @Injectable()
@@ -8,9 +9,12 @@ export class AiChatService {
   private readonly logger = new Logger(AiChatService.name);
   private readonly apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async streamChat(dto: ChatRequestDto, res: Response): Promise<void> {
+  async streamChat(dto: ChatRequestDto, req: Request, res: Response): Promise<void> {
     const apiKey = this.configService.get<string>('dashscopeApiKey');
     if (!apiKey) {
       res.status(500).json({ code: 1, message: 'AI 服务未配置 API Key' });
@@ -25,6 +29,13 @@ export class AiChatService {
 
     const messages = [systemMessage, ...dto.messages];
     const model = dto.model || 'qwen-turbo';
+
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
+    const userAgent = req.headers['user-agent'] || '';
+    const lastUserMsg = dto.messages.filter((m) => m.role === 'user').pop();
+    this.prisma.aiChatLog.create({
+      data: { ip, userAgent, question: lastUserMsg?.content || '', model },
+    }).catch((err) => this.logger.error('Save chat log error', err));
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -86,5 +97,19 @@ export class AiChatService {
       res.write('data: [DONE]\n\n');
       res.end();
     }
+  }
+
+  async findAll(query: { page?: number; pageSize?: number }) {
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 20;
+    const [list, total] = await Promise.all([
+      this.prisma.aiChatLog.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { createTime: 'desc' },
+      }),
+      this.prisma.aiChatLog.count(),
+    ]);
+    return { list, total, page, pageSize };
   }
 }

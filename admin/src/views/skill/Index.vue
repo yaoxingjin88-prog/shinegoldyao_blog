@@ -144,7 +144,14 @@ function openSkillDialog(row?: Skill, catId?: string) {
   const defaults = { categoryId: catId ? Number(catId) : undefined as number | undefined, skillName: '', proficiency: 50, iconUrl: '', description: '', sort: 0 }
   Object.assign(skillForm, defaults)
   if (row) {
-    Object.assign(skillForm, { categoryId: Number(row.categoryId), skillName: row.skillName, proficiency: row.proficiency, iconUrl: row.iconUrl || '', description: row.description || '', sort: row.sort || 0 })
+    Object.assign(skillForm, { 
+      categoryId: Number(row.categoryId), 
+      skillName: row.skillName, 
+      proficiency: Number(row.proficiency) || 0, 
+      iconUrl: row.iconUrl || '', 
+      description: row.description || '', 
+      sort: row.sort || 0 
+    })
   }
   skillDialog.value = true
 }
