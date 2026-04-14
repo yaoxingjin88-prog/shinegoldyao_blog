@@ -37,7 +37,7 @@
                 <h4 class="text-lg font-bold text-gray-900 dark:text-white">{{ exp.position }} @ {{ exp.orgName }}</h4>
               </div>
               <p :class="['text-sm mb-2', i === 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400']">
-                {{ exp.startDate?.slice(0, 7) }} - {{ exp.endDate?.slice(0, 7) || $t('about.present') }}
+                {{ formatDate(exp.startDate) }} - {{ formatDate(exp.endDate) || $t('about.present') }}
               </p>
               <p v-if="exp.description" class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ exp.description }}</p>
             </div>
@@ -102,6 +102,13 @@ const colorMode = useColorMode()
 function getSkillColor(catIdx: number, skillIdx: number): string {
   const idx = (catIdx * 7 + skillIdx) % skillPalette.length
   return colorMode.value === 'dark' ? skillPalette[idx].dark : skillPalette[idx].light
+}
+
+function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return ''
+  if (typeof date === 'string') return date.slice(0, 7)
+  if (date instanceof Date) return date.toISOString().slice(0, 7)
+  return String(date).slice(0, 7)
 }
 
 const { getSiteConfig, getSkillCategories, getExperiences } = useApi()
