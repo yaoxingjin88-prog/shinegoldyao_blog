@@ -186,7 +186,7 @@ async function handleImport() {
     const data = await res.json()
 
     if (!data.content) throw new Error('文件内容为空')
-    const content = decodeURIComponent(escape(atob(data.content)))
+    let content = decodeURIComponent(escape(atob(data.content)))
 
     // 从 markdown 提取标题（第一个 # 标题）
     const titleMatch = content.match(/^#\s+(.+)$/m)
@@ -194,6 +194,19 @@ async function handleImport() {
 
     // 生成 slug
     const slug = giteeForm.path.replace(/.*\//, '').replace(/\.md$/, '').replace(/[^a-zA-Z0-9\u4e00-\u9fa5-]/g, '-').toLowerCase()
+
+    // 获取 md 文件所在目录
+    const mdDir = giteeForm.path.substring(0, giteeForm.path.lastIndexOf('/') + 1) || ''
+
+    // 转换图片路径为 Gitee 原始文件 URL
+    // 匹配 ![alt](path) 或 <img src="path"> 格式的图片
+    content = content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      if (src.startsWith('http') || src.startsWith('//')) return match
+      // 相对路径转换为 Gitee 原始文件 URL
+      const imagePath = src.startsWith('./') ? mdDir + src.slice(2) : src.startsWith('/') ? src.slice(1) : mdDir + src
+      const rawUrl = `https://gitee.com/${info.owner}/${info.repo}/raw/main/${imagePath}`
+      return `![${alt}](${rawUrl})`
+    })
 
     // 跳转到新增页面并携带导入数据
     sessionStorage.setItem('gitee_import', JSON.stringify({ title, slug, content }))

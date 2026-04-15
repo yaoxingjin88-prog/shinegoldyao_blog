@@ -240,6 +240,7 @@ hljs.registerLanguage('dockerfile', dockerfile)
 hljs.registerLanguage('nginx', nginx)
 hljs.registerLanguage('scss', scss)
 
+// 创建 marked 实例并配置图片渲染器
 const markedInstance = new Marked(
   markedHighlight({
     langPrefix: 'hljs language-',
@@ -252,6 +253,20 @@ const markedInstance = new Marked(
   }),
   { breaks: true, gfm: true }
 )
+
+// 配置图片渲染器，处理相对路径
+const renderer = new markedInstance.Renderer()
+const originalImage = renderer.image.bind(renderer)
+renderer.image = (href: string | null | undefined, title: string | null | undefined, text: string) => {
+  // 处理相对路径图片，转换为绝对路径
+  let src = String(href || '')
+  if (src && !src.startsWith('http') && !src.startsWith('//')) {
+    // 如果是相对路径，添加网站域名前缀
+    src = `https://shinegoldyao.store${src.startsWith('/') ? '' : '/'}${src}`
+  }
+  return originalImage(src, title || '', text)
+}
+markedInstance.setOptions({ renderer })
 
 const { t, locale } = useI18n()
 const route = useRoute()
