@@ -256,15 +256,35 @@ const markedInstance = new Marked(
 
 // 配置图片渲染器，处理相对路径
 const renderer = new markedInstance.Renderer()
-const originalImage = renderer.image.bind(renderer)
-renderer.image = (href: string | null | undefined, title: string | null | undefined, text: string) => {
-  // 处理相对路径图片，转换为绝对路径
-  let src = String(href || '')
-  if (src && !src.startsWith('http') && !src.startsWith('//')) {
-    // 如果是相对路径，添加网站域名前缀
-    src = `https://shinegoldyao.store${src.startsWith('/') ? '' : '/'}${src}`
+const GITEE_REPO_RAW_BASE = 'https://gitee.com/yaoxingjin/personal-technical-md-file/raw/main'
+
+function resolveMarkdownImageSrc(src: string) {
+  if (!src) return ''
+
+  if (src.startsWith('data:') || src.startsWith('blob:')) {
+    return src
   }
-  return originalImage(src, title || '', text)
+
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('//')) {
+    if (src.includes('gitee.com') && src.includes('/blob/')) {
+      return src.replace('/blob/', '/raw/')
+    }
+    return src
+  }
+
+  if (src.startsWith('/uploads') || src.startsWith('/images') || src.startsWith('/static')) {
+    return `https://shinegoldyao.store${src}`
+  }
+
+  const normalized = src.replace(/^\/+/, '')
+  return new URL(normalized, `${GITEE_REPO_RAW_BASE}/`).toString()
+}
+
+renderer.image = ({ href, title, text }) => {
+  const src = resolveMarkdownImageSrc(String(href || ''))
+  const altText = String(text || title || 'image').replace(/"/g, '&quot;')
+  const titleAttr = title ? ` title="${String(title).replace(/"/g, '&quot;')}"` : ''
+  return `<img src="${src}" alt="${altText}"${titleAttr} loading="lazy" decoding="async" />`
 }
 markedInstance.setOptions({ renderer })
 
