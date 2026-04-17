@@ -17,17 +17,17 @@
 </template>
 
 <script setup lang="ts">
-const { getSiteConfig, getBanners, getSkillCategories, getArticles } = useApi()
+const { getBanners, getSkillCategories, getArticles } = useApi()
+
+const siteConfig = useSiteConfig()
 
 const { data: homeData } = await useAsyncData('home', async () => {
-  const [config, bannerList, skills, articleRes] = await Promise.all([
-    getSiteConfig().catch(() => ({})),
+  const [bannerList, skills, articleRes] = await Promise.all([
     getBanners().catch(() => []),
     getSkillCategories().catch(() => []),
     getArticles({ page: 1, pageSize: 6 }).catch(() => ({ list: [] })),
   ])
   return {
-    siteConfig: config as Record<string, string>,
     banners: bannerList as any[],
     skillCategories: skills as any[],
     articles: ((articleRes as any)?.list || []) as any[],
@@ -37,7 +37,6 @@ const { data: homeData } = await useAsyncData('home', async () => {
   getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
 })
 
-const siteConfig = computed(() => homeData.value?.siteConfig || {})
 const banners = computed(() => homeData.value?.banners || [])
 const skillCategories = computed(() => homeData.value?.skillCategories || [])
 const articles = computed(() => homeData.value?.articles || [])

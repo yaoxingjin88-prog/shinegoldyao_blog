@@ -25,14 +25,13 @@ export function useMeteor() {
   async function loadConfig() {
     if (configLoaded.value) return
     try {
-      const { getSiteConfig } = useApi()
-      const data = await getSiteConfig()
-      if (data) {
+      const data = useSiteConfig()
+      if (data.value) {
         const cfg = { ...DEFAULT_CONFIG }
-        if (data.meteor_enabled !== undefined) cfg.enabled = data.meteor_enabled === 'true'
-        if (data.meteor_density) cfg.density = Math.max(1, Math.min(10, Number(data.meteor_density) || 5))
-        if (data.meteor_speed) cfg.speed = Math.max(1, Math.min(10, Number(data.meteor_speed) || 5))
-        if (data.meteor_max_count) cfg.maxCount = Math.max(2, Math.min(30, Number(data.meteor_max_count) || 12))
+        if (data.value.meteor_enabled !== undefined) cfg.enabled = data.value.meteor_enabled === 'true'
+        if (data.value.meteor_density) cfg.density = Math.max(1, Math.min(10, Number(data.value.meteor_density) || 5))
+        if (data.value.meteor_speed) cfg.speed = Math.max(1, Math.min(10, Number(data.value.meteor_speed) || 5))
+        if (data.value.meteor_max_count) cfg.maxCount = Math.max(2, Math.min(30, Number(data.value.meteor_max_count) || 12))
         meteorConfig.value = cfg
         meteorActive.value = cfg.enabled
       }

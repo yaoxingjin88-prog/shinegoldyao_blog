@@ -197,9 +197,8 @@ import {
 } from 'lucide-vue-next'
 
 const { t } = useI18n()
-const { getSiteConfig } = useApi()
-const { data: loginConfig } = await useAsyncData('login-config', () => getSiteConfig().catch(() => ({})))
-const siteTitle = computed(() => (loginConfig.value as any)?.site_title || 'DevVoyage')
+const loginConfig = useSiteConfig()
+const siteTitle = computed(() => loginConfig.value?.site_title || 'DevVoyage')
 
 const tabs = computed(() => [
   { key: 'wechat', label: t('login.tabWechat') },

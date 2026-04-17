@@ -71,15 +71,12 @@ import { Sun, Moon, Menu, LogIn, Sparkles } from 'lucide-vue-next'
 
 const { meteorActive, toggleMeteor } = useMeteor()
 
-const { getSiteConfig } = useApi()
 const colorMode = useColorMode()
 const scrolled = ref(false)
 const mobileOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
-const { data: navConfig } = await useAsyncData('nav-config', () => getSiteConfig().catch(() => ({})), {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
-})
+const navConfig = useSiteConfig()
 const siteTitle = computed(() => navConfig.value?.site_title || 'DevVoyage')
 
 const { t, locale, locales, setLocale } = useI18n()

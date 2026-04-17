@@ -111,19 +111,18 @@ function formatDate(date: string | Date | null | undefined): string {
   return String(date).slice(0, 7)
 }
 
-const { getSiteConfig, getSkillCategories, getExperiences } = useApi()
+const { getSkillCategories, getExperiences } = useApi()
 
-const siteConfig = ref<Record<string, string>>({})
+const siteConfig = useSiteConfig()
 const skillCategories = ref<any[]>([])
 const experiences = ref<any[]>([])
 
 const { data } = await useAsyncData('about', async () => {
-  const [config, skills, exps] = await Promise.all([
-    getSiteConfig().catch(() => ({})),
+  const [skills, exps] = await Promise.all([
     getSkillCategories().catch(() => []),
     getExperiences().catch(() => []),
   ])
-  return { config, skills, exps }
+  return { skills, exps }
 }, {
   lazy: true,
   getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
@@ -131,7 +130,6 @@ const { data } = await useAsyncData('about', async () => {
 
 watch(data, (val) => {
   if (!val) return
-  siteConfig.value = val.config as Record<string, string> || {}
   skillCategories.value = val.skills as any[] || []
   experiences.value = val.exps as any[] || []
 }, { immediate: true })
