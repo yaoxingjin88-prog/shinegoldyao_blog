@@ -47,21 +47,33 @@ export default defineNuxtConfig({
     },
   },
   tailwindcss: { cssPath: '~/assets/css/main.css' },
-  image: { quality: 80 },
-  compatibilityDate: '2024-04-03',
-  experimental: {
-    payloadExtraction: true,
+  image: {
+    quality: 80,
+    format: ['avif', 'webp'],
+    domains: ['gitee.com', 'shinegoldyao.store'],
+    screens: { xs: 320, sm: 640, md: 768, lg: 1024, xl: 1280, xxl: 1536 },
   },
+  compatibilityDate: '2024-04-03',
   nitro: {
     compressPublicAssets: { gzip: true, brotli: true },
+  },
+  // 路由级缓存策略（SWR 由 Nitro 统一处理，支持 Node/Vercel/Cloudflare 等部署）
+  routeRules: {
+    '/': { swr: 60 },
+    '/articles': { swr: 60 },
+    '/articles/**': { swr: 300 },
+    '/projects': { swr: 300 },
+    '/tools': { swr: 300 },
+    '/about': { swr: 600 },
+    '/login': { ssr: false },
   },
   vite: {
     build: {
       rollupOptions: {
         output: {
+          // 只对首页/大多数路由都不用的"icons/i18n"做分包；
+          // hljs 走动态 import 自然分包；marked 仅文章页用，交给路由级 chunk 即可
           manualChunks(id: string) {
-            if (id.includes('highlight.js')) return 'hljs'
-            if (id.includes('marked')) return 'marked'
             if (id.includes('lucide-vue-next')) return 'icons'
             if (id.includes('vue-i18n') || id.includes('@intlify')) return 'i18n'
           },

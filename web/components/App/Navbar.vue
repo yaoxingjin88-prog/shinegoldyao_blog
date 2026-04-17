@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { Sun, Moon, Menu, LogIn, User, Sparkles, Languages } from 'lucide-vue-next'
+import { Sun, Moon, Menu, LogIn, Sparkles } from 'lucide-vue-next'
 
 const { meteorActive, toggleMeteor } = useMeteor()
 
@@ -102,8 +102,22 @@ function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'
 }
 
+let scrollRaf = 0
+function onScroll() {
+  if (scrollRaf) return
+  scrollRaf = requestAnimationFrame(() => {
+    scrolled.value = window.scrollY > 20
+    scrollRaf = 0
+  })
+}
+
 onMounted(() => {
-  window.addEventListener('scroll', () => { scrolled.value = window.scrollY > 20 })
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+  if (scrollRaf) cancelAnimationFrame(scrollRaf)
 })
 
 </script>

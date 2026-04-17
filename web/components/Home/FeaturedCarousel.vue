@@ -14,7 +14,18 @@
       :class="index === current ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0 pointer-events-none'"
     >
       <!-- 背景图或渐变 -->
-      <img v-if="banner.imageUrl" :src="banner.imageUrl" :alt="banner.title" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+      <NuxtImg
+        v-if="banner.imageUrl"
+        :src="banner.imageUrl"
+        :alt="banner.title"
+        class="absolute inset-0 w-full h-full object-cover"
+        :loading="index === 0 ? 'eager' : 'lazy'"
+        :fetchpriority="index === 0 ? 'high' : 'auto'"
+        :preload="index === 0"
+        sizes="sm:100vw md:100vw lg:1152px"
+        format="webp"
+        decoding="async"
+      />
       <template v-else>
         <div class="absolute inset-0 dark:hidden" :style="{ background: banner.bgColor || 'linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #fce7f3 100%)' }"></div>
         <div class="absolute inset-0 hidden dark:block" :style="{ background: banner.bgColorDark || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)' }"></div>

@@ -139,7 +139,44 @@
 <script setup lang="ts">
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core'
+
+// AI 回答里可能出现的常见语言（按需注册，多余的语言直接转义为纯文本）
+const HLJS_LANG_MAP: Record<string, string> = {
+  js: 'javascript', javascript: 'javascript',
+  ts: 'typescript', typescript: 'typescript',
+  html: 'xml', xml: 'xml', vue: 'xml',
+  css: 'css', scss: 'scss', less: 'less',
+  json: 'json',
+  bash: 'bash', sh: 'bash', shell: 'bash',
+  python: 'python', py: 'python',
+  java: 'java', sql: 'sql',
+  markdown: 'markdown', md: 'markdown',
+  yaml: 'yaml', yml: 'yaml',
+  go: 'go', rust: 'rust', c: 'c', cpp: 'cpp', php: 'php',
+}
+const loadedLangs = new Set<string>()
+const loadingLangs = new Map<string, Promise<void>>()
+function loadHljsLang(alias: string): Promise<void> {
+  const mod = HLJS_LANG_MAP[alias]
+  if (!mod) return Promise.resolve()
+  if (loadedLangs.has(mod)) return Promise.resolve()
+  const existing = loadingLangs.get(mod)
+  if (existing) return existing
+  const p = import(`highlight.js/lib/languages/${mod}`)
+    .then((m: any) => { hljs.registerLanguage(mod, m.default || m); loadedLangs.add(mod) })
+    .catch(() => { /* ignore */ })
+  loadingLangs.set(mod, p)
+  return p
+}
+function preloadLangsFor(md: string) {
+  if (!md) return
+  const set = new Set<string>()
+  const re = /```([a-zA-Z0-9_+-]+)/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(md))) set.add(m[1].toLowerCase())
+  set.forEach((l) => { loadHljsLang(l) })
+}
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -176,16 +213,23 @@ const marked = new Marked(
   markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code: string, lang: string) {
-      if (lang && hljs.getLanguage(lang)) {
-        return hljs.highlight(code, { language: lang }).value
+      const alias = (lang || '').toLowerCase()
+      const real = HLJS_LANG_MAP[alias]
+      if (real && hljs.getLanguage(real)) {
+        return hljs.highlight(code, { language: real }).value
       }
-      return hljs.highlightAuto(code).value
+      return code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
     },
   }),
 )
 
 function renderMarkdown(text: string): string {
   if (!text) return ''
+  // 异步懒加载语言包（下一次 tick 渲染时才会生效，但不影响展示）
+  preloadLangsFor(text)
   return marked.parse(text) as string
 }
 

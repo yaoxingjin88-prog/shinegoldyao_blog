@@ -204,51 +204,92 @@ import { Eye, MessageCircle, Send, BookOpen, ChevronLeft, ChevronRight } from 'l
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js/lib/core'
-import javascript from 'highlight.js/lib/languages/javascript'
-import typescript from 'highlight.js/lib/languages/typescript'
-import xml from 'highlight.js/lib/languages/xml'
-import css from 'highlight.js/lib/languages/css'
-import json from 'highlight.js/lib/languages/json'
-import bash from 'highlight.js/lib/languages/bash'
-import python from 'highlight.js/lib/languages/python'
-import java from 'highlight.js/lib/languages/java'
-import sql from 'highlight.js/lib/languages/sql'
-import markdown from 'highlight.js/lib/languages/markdown'
-import yaml from 'highlight.js/lib/languages/yaml'
-import dockerfile from 'highlight.js/lib/languages/dockerfile'
-import nginx from 'highlight.js/lib/languages/nginx'
-import scss from 'highlight.js/lib/languages/scss'
 
-hljs.registerLanguage('javascript', javascript)
-hljs.registerLanguage('js', javascript)
-hljs.registerLanguage('typescript', typescript)
-hljs.registerLanguage('ts', typescript)
-hljs.registerLanguage('html', xml)
-hljs.registerLanguage('xml', xml)
-hljs.registerLanguage('css', css)
-hljs.registerLanguage('json', json)
-hljs.registerLanguage('bash', bash)
-hljs.registerLanguage('sh', bash)
-hljs.registerLanguage('shell', bash)
-hljs.registerLanguage('python', python)
-hljs.registerLanguage('java', java)
-hljs.registerLanguage('sql', sql)
-hljs.registerLanguage('markdown', markdown)
-hljs.registerLanguage('yaml', yaml)
-hljs.registerLanguage('yml', yaml)
-hljs.registerLanguage('dockerfile', dockerfile)
-hljs.registerLanguage('nginx', nginx)
-hljs.registerLanguage('scss', scss)
+// ---- 按需加载 hljs 语言包 ----
+// 别名 -> highlight.js 实际模块名
+const HLJS_LANG_MAP: Record<string, string> = {
+  js: 'javascript',
+  javascript: 'javascript',
+  ts: 'typescript',
+  typescript: 'typescript',
+  html: 'xml',
+  xml: 'xml',
+  vue: 'xml',
+  css: 'css',
+  scss: 'scss',
+  less: 'less',
+  json: 'json',
+  bash: 'bash',
+  sh: 'bash',
+  shell: 'bash',
+  python: 'python',
+  py: 'python',
+  java: 'java',
+  sql: 'sql',
+  markdown: 'markdown',
+  md: 'markdown',
+  yaml: 'yaml',
+  yml: 'yaml',
+  dockerfile: 'dockerfile',
+  nginx: 'nginx',
+  go: 'go',
+  rust: 'rust',
+  c: 'c',
+  cpp: 'cpp',
+  php: 'php',
+}
+
+const loadedLangs = new Set<string>()
+const loadingLangs = new Map<string, Promise<void>>()
+
+function loadHljsLang(alias: string): Promise<void> {
+  const mod = HLJS_LANG_MAP[alias]
+  if (!mod) return Promise.resolve()
+  if (loadedLangs.has(mod)) return Promise.resolve()
+  const existing = loadingLangs.get(mod)
+  if (existing) return existing
+  const p = import(`highlight.js/lib/languages/${mod}`)
+    .then((m: any) => {
+      hljs.registerLanguage(mod, m.default || m)
+      loadedLangs.add(mod)
+    })
+    .catch(() => {
+      /* 语言不存在则忽略，渲染为纯文本 */
+    })
+  loadingLangs.set(mod, p)
+  return p
+}
+
+// 扫描 markdown 中的代码块语言
+function scanCodeLangs(md: string): string[] {
+  if (!md) return []
+  const set = new Set<string>()
+  const re = /```([a-zA-Z0-9_+-]+)/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(md))) set.add(m[1].toLowerCase())
+  return Array.from(set)
+}
+
+async function preloadLangsFor(md: string) {
+  const langs = scanCodeLangs(md)
+  await Promise.all(langs.map((l) => loadHljsLang(l)))
+}
 
 // 创建 marked 实例并配置图片渲染器
 const markedInstance = new Marked(
   markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code: string, lang: string) {
-      if (lang && hljs.getLanguage(lang)) {
-        return hljs.highlight(code, { language: lang }).value
+      const alias = (lang || '').toLowerCase()
+      const real = HLJS_LANG_MAP[alias]
+      if (real && hljs.getLanguage(real)) {
+        return hljs.highlight(code, { language: real }).value
       }
-      return hljs.highlightAuto(code).value
+      // 没有匹配语言：直接转义为纯文本，避免 highlightAuto 巨大开销
+      return code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
     },
   }),
   { breaks: true, gfm: true }
@@ -315,6 +356,14 @@ const sharePlatforms = computed(() => {
   return val ? val.split(',').filter(Boolean) : ['wechat', 'weibo', 'twitter', 'copy']
 })
 
+// hljs 按需加载版本号，语言包加载完成后递增以触发重新渲染
+const hljsVersion = ref(0)
+watch(article, async (val) => {
+  if (!val || !val.content) return
+  await preloadLangsFor(val.content)
+  hljsVersion.value++
+}, { immediate: true })
+
 const { data: commentsData } = await useAsyncData(`comments-${slug}`, async () => {
   if (!articleData.value) return []
   return getComments(articleData.value.id).catch(() => [])
@@ -326,15 +375,32 @@ const comments = ref<any[]>(commentsData.value || [])
 watch(commentsData, (v) => { comments.value = v || [] })
 
 const renderedContent = computed(() => {
+  // 依赖 hljsVersion 实现语言包加载后重渲染
+  void hljsVersion.value
   if (!article.value) return ''
   if (article.value.htmlContent) return article.value.htmlContent
+  if (shouldChapterize.value) return ''
   return markedInstance.parse(article.value.content || '') as string
+})
+
+// 预判断是否需要分章，避免后续重复解析
+const shouldChapterize = computed(() => {
+  if (!article.value) return false
+  const content = article.value.content || ''
+  let count = 0
+  const re = /^## .+$/gm
+  while (re.exec(content)) {
+    count++
+    if (count > 1) return true
+  }
+  return count > 1
 })
 
 const currentChapter = ref(0)
 
 const chapters = computed(() => {
-  if (!article.value) return []
+  void hljsVersion.value
+  if (!article.value || !shouldChapterize.value) return []
   const content = article.value.content || ''
   // 按 ## 标题分割章节
   const parts = content.split(/^(## .+)$/m)
@@ -372,9 +438,24 @@ function scrollToContent() {
   })
 }
 
-const topLevelComments = computed(() => comments.value.filter((c: any) => !c.parentId || c.parentId === '0' || c.parentId === 0))
+// 单次遍历构建：顶级评论 + 回复 map，渲染时 O(1) 查找
+const commentTree = computed(() => {
+  const top: any[] = []
+  const map: Record<string, any[]> = {}
+  for (const c of comments.value) {
+    const pid = c.parentId
+    if (!pid || pid === '0' || pid === 0) {
+      top.push(c)
+    } else {
+      const key = String(pid)
+      ;(map[key] ||= []).push(c)
+    }
+  }
+  return { top, map }
+})
+const topLevelComments = computed(() => commentTree.value.top)
 function getReplies(parentId: any) {
-  return comments.value.filter((c: any) => String(c.parentId) === String(parentId))
+  return commentTree.value.map[String(parentId)] || []
 }
 
 async function handleSubmitComment() {

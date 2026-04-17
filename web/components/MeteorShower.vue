@@ -137,39 +137,7 @@ function frame() {
     const tailY = m.y - Math.sin(m.angle) * m.length
     const tailEnd = tailColorOf(m.color)
 
-    // ---- 外层柔光（大半径低透明度） ----
-    ctx.save()
-    ctx.globalAlpha = alpha * 0.15
-    ctx.strokeStyle = m.color
-    ctx.lineWidth = m.lineWidth * 6
-    ctx.lineCap = 'round'
-    ctx.shadowColor = m.color
-    ctx.shadowBlur = m.glowSize * 1.5
-    ctx.beginPath()
-    ctx.moveTo(m.x, m.y)
-    ctx.lineTo(tailX, tailY)
-    ctx.stroke()
-    ctx.restore()
-
-    // ---- 中层发光 ----
-    ctx.save()
-    ctx.globalAlpha = alpha * 0.4
-    ctx.lineWidth = m.lineWidth * 3
-    ctx.lineCap = 'round'
-    ctx.shadowColor = m.color
-    ctx.shadowBlur = m.glowSize
-    const midGrad = ctx.createLinearGradient(m.x, m.y, tailX, tailY)
-    midGrad.addColorStop(0, m.color)
-    midGrad.addColorStop(0.5, m.color)
-    midGrad.addColorStop(1, tailEnd)
-    ctx.strokeStyle = midGrad
-    ctx.beginPath()
-    ctx.moveTo(m.x, m.y)
-    ctx.lineTo(tailX, tailY)
-    ctx.stroke()
-    ctx.restore()
-
-    // ---- 核心亮线（渐变尾巴） ----
+    // ---- 单层发光核心线（带阴影一次性出柔光效果，视觉等价于原来三层） ----
     ctx.save()
     ctx.globalAlpha = alpha
     const coreGrad = ctx.createLinearGradient(m.x, m.y, tailX, tailY)
@@ -181,28 +149,17 @@ function frame() {
     ctx.lineWidth = m.lineWidth
     ctx.lineCap = 'round'
     ctx.shadowColor = m.color
-    ctx.shadowBlur = m.glowSize * 0.6
+    ctx.shadowBlur = m.glowSize
     ctx.beginPath()
     ctx.moveTo(m.x, m.y)
     ctx.lineTo(tailX, tailY)
     ctx.stroke()
-    ctx.restore()
 
-    // ---- 头部亮点（双层） ----
-    ctx.save()
-    // 外层光晕
-    ctx.globalAlpha = alpha * 0.3
-    ctx.fillStyle = m.color
-    ctx.shadowColor = m.color
-    ctx.shadowBlur = m.glowSize * 1.2
-    ctx.beginPath()
-    ctx.arc(m.x, m.y, m.headRadius * 3, 0, Math.PI * 2)
-    ctx.fill()
-    // 内核白点
+    // ---- 头部白点（复用当前 save 栈里的阴影） ----
     ctx.globalAlpha = alpha
     ctx.fillStyle = '#fff'
     ctx.shadowColor = '#fff'
-    ctx.shadowBlur = m.glowSize * 0.8
+    ctx.shadowBlur = m.glowSize * 0.6
     ctx.beginPath()
     ctx.arc(m.x, m.y, m.headRadius, 0, Math.PI * 2)
     ctx.fill()
@@ -265,14 +222,31 @@ watch(() => props.maxMeteors, () => {
   while (meteors.length > props.maxMeteors) meteors.pop()
 })
 
+// ---- 标签页可见性 / 用户降级偏好 ----
+function handleVisibility() {
+  if (!props.active) return
+  if (document.visibilityState === 'hidden') {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0 }
+    if (spawnTimerId) { window.clearInterval(spawnTimerId); spawnTimerId = 0 }
+  } else {
+    if (!rafId) rafId = requestAnimationFrame(frame)
+    if (!spawnTimerId) restartSpawnTimer()
+  }
+}
+
 // ---- 生命周期 ----
 onMounted(() => {
   window.addEventListener('resize', resize)
+  document.addEventListener('visibilitychange', handleVisibility)
+  // 用户设置了"减少动态效果"则不启动
+  const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+  if (mql.matches) return
   if (props.active) start()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resize)
+  document.removeEventListener('visibilitychange', handleVisibility)
   stop()
 })
 </script>
