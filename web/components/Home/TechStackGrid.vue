@@ -20,19 +20,19 @@
           >
             <div class="w-14 h-14 relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
               <img
-                v-if="getIconUrl(skill)"
-                :src="getIconUrl(skill)"
+                v-if="hasIcon(skill)"
+                :src="skill.iconUrl"
                 :alt="skill.skillName"
                 class="w-11 h-11 object-contain"
                 loading="lazy"
-                @error="handleIconError($event, skill)"
+                @error="handleIconError(skill)"
               />
               <div
                 v-else
-                class="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold text-white"
+                class="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold text-white shadow-sm"
                 :style="{ background: getSkillColor(skill.skillName) }"
               >
-                {{ skill.skillName?.charAt(0)?.toUpperCase() }}
+                {{ skill.skillName?.charAt(0)?.toUpperCase() || '?' }}
               </div>
             </div>
             <div class="relative z-10 flex flex-col items-center">
@@ -51,7 +51,19 @@
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue'
+
 defineProps<{ categories: any[] }>()
+
+// 记录加载失败的 skill id，触发响应式重绘到字母 fallback
+const failedIcons = reactive(new Set<string | number>())
+function hasIcon(skill: any): boolean {
+  if (!skill?.iconUrl) return false
+  return !failedIcons.has(skill.id)
+}
+function handleIconError(skill: any) {
+  if (skill?.id != null) failedIcons.add(skill.id)
+}
 
 const skillColors: Record<string, string> = {
   'HTML': '#E34F26',
@@ -84,15 +96,4 @@ function getSkillColor(name: string): string {
   return skillColors[name] || '#6366F1'
 }
 
-function getIconUrl(skill: any): string | null {
-  if (!skill.iconUrl) return null
-  if (skill.iconError) return null
-  return skill.iconUrl
-}
-
-function handleIconError(event: Event, skill: any) {
-  const target = event.target as HTMLImageElement
-  target.style.display = 'none'
-  skill.iconError = true
-}
 </script>

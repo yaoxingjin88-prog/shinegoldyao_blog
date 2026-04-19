@@ -66,6 +66,7 @@ export default defineNuxtConfig({
     '/tools': { swr: 300 },
     '/about': { swr: 600 },
     '/login': { ssr: false },
+    '/graph': { ssr: false },
   },
   vite: {
     build: {

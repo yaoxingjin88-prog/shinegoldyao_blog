@@ -18,6 +18,14 @@ export class SiteController {
     return this.siteService.getConfig();
   }
 
+  @Public()
+  @Get('graph')
+  @CacheTTL(300)
+  @ApiOperation({ summary: '获取知识图谱数据（技能/标签/文章关系）' })
+  getGraph() {
+    return this.siteService.getKnowledgeGraph();
+  }
+
   @ApiBearerAuth()
   @Put('config')
   @ApiOperation({ summary: '批量更新网站配置' })

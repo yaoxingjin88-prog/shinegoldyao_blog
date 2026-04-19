@@ -57,6 +57,19 @@
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">你好！我是航行者 AI 🚀</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">有任何技术问题都可以问我，我会尽力帮你解答。</p>
             <div class="grid grid-cols-1 gap-2 w-full max-w-[280px]">
+              <!-- 文章页专属：AI 帮我读 -->
+              <button
+                v-if="isArticlePage"
+                @click="openArticleReader"
+                class="flex items-center gap-2 text-left text-xs px-3 py-2.5 rounded-xl
+                       bg-gradient-to-r from-violet-500/10 to-blue-500/10 hover:from-violet-500/20 hover:to-blue-500/20
+                       border border-violet-300/40 dark:border-violet-500/30
+                       text-violet-700 dark:text-violet-300 font-medium transition-colors"
+              >
+                <span class="text-base">📖</span>
+                <span class="flex-1">AI 帮我读这篇文章</span>
+                <span class="text-[10px] text-violet-500/70">思维导图 · 术语</span>
+              </button>
               <button
                 v-for="q in quickQuestions"
                 :key="q"
@@ -96,7 +109,7 @@
         <!-- Input -->
         <div class="px-4 py-3 border-t border-gray-200/50 dark:border-white/10 bg-white/50 dark:bg-gray-900/50">
           <div v-if="isLimited" class="text-center py-2">
-            <p class="text-xs text-gray-500 dark:text-gray-400">已达到对话次数上限（{{ MAX_CHAT_COUNT }} 次）</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">已达到对话次数上限（{{ MAX_CHAT_COUNT }} 次/天），请明天再来~</p>
           </div>
           <div v-else class="flex items-end gap-2">
             <textarea
@@ -194,9 +207,29 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const inputEl = ref<HTMLTextAreaElement | null>(null)
 const isMobile = ref(false)
 
-const MAX_CHAT_COUNT = 5
+/**
+ * 对话配额（后端为源）
+ * ------------------------------------------------------------
+ * 后端按 IP 统计 24h 内的使用次数，前端 localStorage 仅做 UX 显示。
+ * 用户换浏览器 / 开无痕仍将被后端拦截（返回 429）。
+ */
+const MAX_CHAT_COUNT = ref(3)
 const chatCount = ref(0)
-const isLimited = computed(() => chatCount.value >= MAX_CHAT_COUNT)
+const isLimited = computed(() => chatCount.value >= MAX_CHAT_COUNT.value)
+
+async function refreshQuota() {
+  try {
+    const res: any = await $fetch(`${apiBase}/ai-chat/quota`)
+    const data = res?.data || res
+    if (data && typeof data.used === 'number') {
+      chatCount.value = data.used
+      MAX_CHAT_COUNT.value = data.limit
+      localStorage.setItem('ai_chat_count', String(data.used))
+    }
+  } catch {
+    // 后端不可达时回落 localStorage（弱网兼容）
+  }
+}
 
 const quickQuestions = [
   '🔧 Vue 3 和 React 有什么区别？',
@@ -204,9 +237,22 @@ const quickQuestions = [
   '🚀 NestJS 有哪些核心概念？',
 ]
 
+// 当前是否在文章详情页（用于展示「AI 帮我读」入口）
+const route = useRoute()
+const isArticlePage = computed(() => /^\/articles\/[^/]+$/.test(route.path))
+
+// 打开 AI 阅读抽屉（共享状态），并关闭聊天面板
+const aiReaderOpen = useAiReaderOpen()
+function openArticleReader() {
+  aiReaderOpen.value = true
+  isOpen.value = false
+}
+
 onMounted(() => {
   isMobile.value = window.innerWidth < 640
+  // 先用 localStorage 快速回显（避免闪烁），再以后端真实配额视为权威值
   chatCount.value = parseInt(localStorage.getItem('ai_chat_count') || '0', 10)
+  refreshQuota()
 })
 
 const marked = new Marked(
@@ -255,6 +301,7 @@ async function sendMessage(text?: string) {
   const content = (text || inputText.value).trim()
   if (!content || isLoading.value || isLimited.value) return
 
+  // 乐观 +1，最终以后端配额为准
   chatCount.value++
   localStorage.setItem('ai_chat_count', String(chatCount.value))
 
@@ -287,6 +334,19 @@ async function sendMessage(text?: string) {
     })
 
     if (!response.ok) {
+      // 后端配额拦截
+      if (response.status === 429) {
+        let msg = `对话次数已达上限（${MAX_CHAT_COUNT.value} 次/天），请明天再来~`
+        try {
+          const errBody = await response.json()
+          msg = errBody?.message || msg
+        } catch { /* ignore */ }
+        messages.value[assistantIndex].content = `⏳ ${msg}`
+        // 同步配额到上限，禁用输入框
+        chatCount.value = MAX_CHAT_COUNT.value
+        localStorage.setItem('ai_chat_count', String(chatCount.value))
+        return
+      }
       throw new Error(`HTTP ${response.status}`)
     }
 
@@ -332,6 +392,8 @@ async function sendMessage(text?: string) {
   } finally {
     isLoading.value = false
     scrollToBottom()
+    // 回答结束后拉一次后端配额，保证前后端一致
+    refreshQuota()
   }
 }
 </script>

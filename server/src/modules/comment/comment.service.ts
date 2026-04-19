@@ -2,10 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto, QueryCommentDto } from './dto/comment.dto';
+import { SensitiveService, SensitiveStrategy } from '../../common/sensitive/sensitive.service';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private sensitive: SensitiveService,
+    private events: EventsService,
+  ) {}
 
   async findByArticle(articleId: number) {
     const comments = await this.prisma.comment.findMany({
@@ -33,10 +39,16 @@ export class CommentService {
     return { list, total, page, pageSize };
   }
 
-  create(dto: CreateCommentDto, req: Request) {
+  async create(dto: CreateCommentDto, req: Request) {
+    // 敏感词校验：命中即抛 400
+    this.sensitive.enforceFields(
+      { nickname: dto.nickname, content: dto.content, website: dto.website },
+      SensitiveStrategy.REJECT,
+    );
+
     const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
     const userAgent = req.headers['user-agent'] || '';
-    return this.prisma.comment.create({
+    const created = await this.prisma.comment.create({
       data: {
         articleId: BigInt(dto.articleId),
         parentId: dto.parentId ? BigInt(dto.parentId) : 0n,
@@ -48,6 +60,15 @@ export class CommentService {
         userAgent,
       },
     });
+
+    // WebSocket 实时推送：新评论
+    const article = await this.prisma.article.findUnique({
+      where: { id: BigInt(dto.articleId) },
+      select: { title: true },
+    });
+    this.events.pushComment(article?.title || '未知文章', dto.nickname, dto.content);
+
+    return created;
   }
 
   async remove(id: number) {

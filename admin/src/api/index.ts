@@ -38,6 +38,13 @@ export const articleApi = {
   update: (id: string, data: Partial<Article>) => request.put(`/article/${id}`, data),
   remove: (id: string) => request.delete(`/article/${id}`),
   getBySlug: (slug: string) => request.get<any, Article>(`/article/${slug}`),
+  aiGenerate: (data: { title: string; content: string }) =>
+    request.post<any, { summary: string; seoDescription: string; keywords: string[]; tags: string[]; matchedTagIds: string[] }>(
+      '/article/ai-generate',
+      data,
+    ),
+  aiLogs: (params?: { page?: number; pageSize?: number; actionType?: 'read' | 'explain' }) =>
+    request.get<any, { list: any[]; total: number; page: number; pageSize: number }>('/article/admin/ai-logs', { params }),
 }
 
 export const skillApi = {
@@ -98,6 +105,9 @@ export const toolApi = {
 export const trackApi = {
   list: (params?: Record<string, any>) => request.get<any, any>('/track', { params }),
   stats: () => request.get<any, any>('/track/stats'),
+  heatmap: (path: string, limit = 2000) =>
+    request.get<any, { total: number; points: [number, number, number][] }>('/track/heatmap', { params: { path, limit } }),
+  heatmapPaths: () => request.get<any, { path: string; count: number }[]>('/track/heatmap/paths'),
 }
 
 export const aiChatApi = {

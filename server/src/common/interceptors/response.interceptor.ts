@@ -10,11 +10,14 @@ export interface Response<T> {
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
-  // 递归转换 BigInt 为 number
+  // 递归转换 BigInt 为 number（保留 Date / Buffer 等特殊对象）
   private serializeBigInt(obj: any): any {
     if (obj === null || obj === undefined) return obj;
     if (typeof obj === 'bigint') return Number(obj);
     if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') return obj;
+    // Date / Buffer 等特殊对象直接返回，避免被当成普通对象遍历后丢失信息
+    if (obj instanceof Date) return obj;
+    if (typeof Buffer !== 'undefined' && Buffer.isBuffer(obj)) return obj;
     if (Array.isArray(obj)) return obj.map(item => this.serializeBigInt(item));
     if (typeof obj === 'object') {
       const result: any = {};

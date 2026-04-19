@@ -27,6 +27,8 @@ import { UploadModule } from './modules/upload/upload.module';
 import { ToolModule } from './modules/tool/tool.module';
 import { TrackModule } from './modules/track/track.module';
 import { AiChatModule } from './modules/ai-chat/ai-chat.module';
+import { SensitiveModule } from './common/sensitive/sensitive.module';
+import { EventsModule } from './modules/events/events.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { AiChatModule } from './modules/ai-chat/ai-chat.module';
       serveRoot: '/uploads',
     }),
     PrismaModule,
+    SensitiveModule,
+    EventsModule,
     AuthModule,
     SiteModule,
     BannerModule,

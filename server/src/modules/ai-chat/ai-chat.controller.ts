@@ -19,6 +19,13 @@ export class AiChatController {
     return this.aiChatService.streamChat(dto, req, res);
   }
 
+  @Public()
+  @Get('quota')
+  @ApiOperation({ summary: '查询当前 IP 的 AI 对话配额（用于前端同步显示剩余次数）' })
+  getQuota(@Req() req: Request) {
+    return this.aiChatService.getQuota(req);
+  }
+
   @ApiBearerAuth()
   @Get('logs')
   @ApiOperation({ summary: '获取 AI 聊天记录（需认证）' })

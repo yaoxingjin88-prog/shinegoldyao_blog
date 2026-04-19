@@ -3,7 +3,10 @@
     <el-aside width="220px" class="aside">
       <div class="logo">
         <div class="logo-icon">
-          <el-icon :size="22" color="#fff"><Promotion /></el-icon>
+          <!-- 与前台 Navbar 一致的四角星 logo -->
+          <svg viewBox="0 0 24 24" fill="currentColor" class="logo-svg">
+            <path d="M12 1.5C12.5 7.5 16.5 11.5 22.5 12C16.5 12.5 12.5 16.5 12 22.5C11.5 16.5 7.5 12.5 1.5 12C7.5 11.5 11.5 7.5 12 1.5Z" />
+          </svg>
         </div>
         <div class="logo-text">
           <h2>ShineGoldYao</h2>
@@ -34,7 +37,9 @@
           <el-menu-item index="/effects">特效控制</el-menu-item>
           <el-menu-item index="/tool">工具导航</el-menu-item>
           <el-menu-item index="/track">访问统计</el-menu-item>
+          <el-menu-item index="/heatmap">点击热力图</el-menu-item>
           <el-menu-item index="/ai-chat">AI 聊天记录</el-menu-item>
+          <el-menu-item index="/ai-read-log">AI 阅读日志</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -45,6 +50,7 @@
           <span class="header-breadcrumb-text">{{ currentPageTitle }}</span>
         </div>
         <div class="header-right">
+          <NotificationBell />
           <el-button text @click="handleLogout" class="logout-btn">
             <el-icon style="margin-right:4px"><SwitchButton /></el-icon>
             退出登录
@@ -60,6 +66,11 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useNotificationStore } from '../stores/notifications'
+import NotificationBell from '../components/NotificationBell.vue'
+
+// 登录后进入布局即触发 store 初始化，自动建立 WebSocket 连接
+useNotificationStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -83,7 +94,9 @@ const pageTitleMap: Record<string, string> = {
   '/effects': '特效控制',
   '/tool': '工具导航管理',
   '/track': '访问统计',
+  '/heatmap': '点击热力图',
   '/ai-chat': 'AI 聊天记录',
+  '/ai-read-log': 'AI 阅读日志',
 }
 
 const currentPageTitle = computed(() => {
@@ -130,6 +143,13 @@ function handleLogout() {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+.logo-svg {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
 }
 .logo-text h2 {
   margin: 0;
@@ -210,6 +230,11 @@ function handleLogout() {
   font-size: 15px;
   font-weight: 500;
   color: #4b5563;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .logout-btn {
   color: #9ca3af !important;

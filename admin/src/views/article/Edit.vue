@@ -6,7 +6,20 @@
         <el-col :span="16">
           <el-form-item label="标题" prop="title"><el-input v-model="form.title" placeholder="文章标题" /></el-form-item>
           <el-form-item label="Slug" prop="slug"><el-input v-model="form.slug" placeholder="URL路径，如 my-first-post" /></el-form-item>
-          <el-form-item label="摘要"><el-input v-model="form.summary" type="textarea" :rows="3" placeholder="文章摘要" /></el-form-item>
+          <el-form-item label="摘要">
+            <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="文章摘要（留空点击下方 AI 生成可自动填充）" />
+          </el-form-item>
+          <el-form-item label="AI 助手">
+            <el-space wrap>
+              <el-button type="success" :loading="aiLoading" :disabled="!form.title || !form.content" @click="handleAiGenerate">
+                <el-icon style="margin-right:4px"><MagicStick /></el-icon>
+                AI 生成 摘要 / SEO / 标签
+              </el-button>
+              <el-tooltip content="基于标题和正文，调用大模型自动生成 TL;DR 摘要、SEO 关键词与推荐标签" placement="top">
+                <el-icon style="color:#909399;cursor:help"><InfoFilled /></el-icon>
+              </el-tooltip>
+            </el-space>
+          </el-form-item>
           <el-form-item label="内容" prop="content">
             <MdEditor v-if="editorVisible" v-model="form.content" :style="{ width: '100%', height: '500px' }" />
           </el-form-item>
@@ -43,7 +56,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, type FormInstance } from 'element-plus'
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { MagicStick, InfoFilled } from '@element-plus/icons-vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { articleApi, categoryApi, tagApi } from '../../api'
@@ -57,6 +71,7 @@ const categories = ref<ArticleCategory[]>([])
 const tags = ref<ArticleTag[]>([])
 const isEdit = computed(() => !!route.params.id)
 const editorVisible = ref(false)
+const aiLoading = ref(false)
 
 const form = reactive({
   title: '', slug: '', coverUrl: '', summary: '', content: '',
@@ -69,6 +84,48 @@ const rules = {
   slug: [{ required: true, message: '请输入Slug' }],
   content: [{ required: true, message: '请输入内容' }],
   categoryId: [{ required: true, message: '请选择分类' }],
+}
+
+async function handleAiGenerate() {
+  if (!form.title?.trim() || !form.content?.trim()) {
+    ElMessage.warning('请先填写标题和正文')
+    return
+  }
+  aiLoading.value = true
+  try {
+    const res = await articleApi.aiGenerate({ title: form.title, content: form.content })
+    if (!res || (!res.summary && !res.keywords?.length && !res.tags?.length)) {
+      ElMessage.warning('AI 生成失败或返回为空，请检查服务端 DASHSCOPE_API_KEY 配置')
+      return
+    }
+    const fields: string[] = []
+    if (res.summary) fields.push(`摘要：${res.summary}`)
+    if (res.seoDescription) fields.push(`SEO 描述：${res.seoDescription}`)
+    if (res.keywords?.length) fields.push(`关键词：${res.keywords.join('、')}`)
+    if (res.tags?.length) fields.push(`推荐标签：${res.tags.join('、')}`)
+    await ElMessageBox.confirm(
+      fields.join('\n\n'),
+      'AI 生成结果预览（确认后将覆盖空字段）',
+      {
+        confirmButtonText: '应用到表单',
+        cancelButtonText: '取消',
+        type: 'info',
+        customStyle: { whiteSpace: 'pre-wrap' } as any,
+      },
+    )
+    if (!form.summary?.trim() && res.summary) form.summary = res.summary
+    if (!form.seoDescription?.trim() && res.seoDescription) form.seoDescription = res.seoDescription
+    if (!form.seoKeywords?.trim() && res.keywords?.length) form.seoKeywords = res.keywords.join(',')
+    if (res.matchedTagIds?.length) {
+      const merged = new Set([...form.tagIds, ...res.matchedTagIds])
+      form.tagIds = Array.from(merged)
+    }
+    ElMessage.success('已应用 AI 生成结果')
+  } catch (err: any) {
+    if (err !== 'cancel') ElMessage.error('AI 生成失败')
+  } finally {
+    aiLoading.value = false
+  }
 }
 
 async function handleSubmit(isPublish: number) {

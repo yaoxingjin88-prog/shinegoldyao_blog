@@ -9,15 +9,60 @@ export class AiChatService {
   private readonly logger = new Logger(AiChatService.name);
   private readonly apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
+  /** 每 IP 每 24 小时最大对话次数，防止换浏览器/无痕模式绕过前端 localStorage 限制 */
+  private readonly DAILY_LIMIT = 3;
+  private readonly WINDOW_MS = 24 * 60 * 60 * 1000;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
   ) {}
 
+  /** 取客户端真实 IP（兼容反向代理） */
+  private getClientIp(req: Request): string {
+    const xff = (req.headers['x-forwarded-for'] as string) || '';
+    return xff.split(',')[0].trim() || req.socket.remoteAddress || '';
+  }
+
+  /** 查询指定 IP 近 24h 的使用量 */
+  private async countRecent(ip: string): Promise<number> {
+    if (!ip) return 0;
+    const since = new Date(Date.now() - this.WINDOW_MS);
+    return this.prisma.aiChatLog.count({
+      where: { ip, createTime: { gte: since } },
+    });
+  }
+
+  /** 返回当前 IP 的配额信息，给前端调用 */
+  async getQuota(req: Request) {
+    const ip = this.getClientIp(req);
+    const used = await this.countRecent(ip);
+    return {
+      used,
+      limit: this.DAILY_LIMIT,
+      remaining: Math.max(0, this.DAILY_LIMIT - used),
+      windowMs: this.WINDOW_MS,
+    };
+  }
+
   async streamChat(dto: ChatRequestDto, req: Request, res: Response): Promise<void> {
     const apiKey = this.configService.get<string>('dashscopeApiKey');
     if (!apiKey) {
       res.status(500).json({ code: 1, message: 'AI 服务未配置 API Key' });
+      return;
+    }
+
+    const ip = this.getClientIp(req);
+    const userAgent = req.headers['user-agent'] || '';
+
+    // ★ 后端硬配额校验：按 IP 滞穻统计 24h 使用次数
+    const used = await this.countRecent(ip);
+    if (used >= this.DAILY_LIMIT) {
+      res.status(429).json({
+        code: 429,
+        message: `对话次数已达上限（${this.DAILY_LIMIT} 次/天），请明天再来~`,
+        data: { used, limit: this.DAILY_LIMIT, remaining: 0 },
+      });
       return;
     }
 
@@ -29,9 +74,6 @@ export class AiChatService {
 
     const messages = [systemMessage, ...dto.messages];
     const model = dto.model || 'qwen-turbo';
-
-    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
-    const userAgent = req.headers['user-agent'] || '';
     const lastUserMsg = dto.messages.filter((m) => m.role === 'user').pop();
     this.prisma.aiChatLog.create({
       data: { ip, userAgent, question: lastUserMsg?.content || '', model },

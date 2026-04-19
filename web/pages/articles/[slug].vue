@@ -1,5 +1,18 @@
 <template>
   <div class="pt-24 pb-16">
+    <!-- 固定左上返回按钮（全屏/滚动状态下也可用） -->
+    <button
+      class="fixed top-24 left-4 md:left-6 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full
+             bg-white/80 dark:bg-gray-900/80 backdrop-blur border border-gray-200 dark:border-gray-700
+             text-sm text-gray-700 dark:text-gray-200 shadow-sm
+             hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all"
+      :title="$t('articles.back') || '返回'"
+      @click="handleBack"
+    >
+      <ChevronLeft class="w-4 h-4" />
+      <span class="hidden md:inline">{{ $t('articles.back') || '返回' }}</span>
+    </button>
+
     <article v-if="article" class="max-w-4xl mx-auto px-6">
       <div class="mb-8">
         <div class="flex items-center gap-3 mb-4">
@@ -18,6 +31,11 @@
             :platforms="sharePlatforms"
           />
         </div>
+      </div>
+
+      <!-- 语音朗读条 -->
+      <div class="mb-8">
+        <ArticleSpeechReader :html="speechSource" />
       </div>
 
       <div v-if="article.coverUrl" class="mb-8 rounded-2xl overflow-hidden">
@@ -138,8 +156,30 @@
                 {{ commentLoading ? $t('articles.submitting') : $t('articles.submit') }}
               </button>
             </div>
-            <p v-if="commentSuccess" class="text-sm text-green-600">{{ $t('articles.commentSuccess') }}</p>
-            <p v-if="commentError" class="text-sm text-red-500">{{ commentError }}</p>
+            <Transition name="fade">
+              <div
+                v-if="commentSuccess"
+                class="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm"
+              >
+                <CheckCircle2 class="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>{{ $t('articles.commentSuccess') }}</span>
+              </div>
+            </Transition>
+            <Transition name="fade">
+              <div
+                v-if="commentError"
+                class="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm"
+              >
+                <AlertTriangle class="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div class="flex-1">
+                  <div class="font-medium mb-0.5">评论发送失败</div>
+                  <div class="text-red-600/80 dark:text-red-400/80">{{ commentError }}</div>
+                </div>
+                <button type="button" class="text-red-400 hover:text-red-600" @click="commentError = ''">
+                  <X class="w-4 h-4" />
+                </button>
+              </div>
+            </Transition>
           </form>
         </div>
 
@@ -177,6 +217,10 @@
         </div>
         <div v-else class="text-center py-10 text-gray-400 text-sm">{{ $t('articles.noComments') }}</div>
       </section>
+      <!-- AI 辅助阅读 -->
+      <ArticleAiReader v-if="article" :slug="article.slug" :article-title="article.title" />
+      <!-- 选中文字 AI 解释 -->
+      <ArticleSelectionExplainer v-if="article" :article-title="article.title" />
     </article>
 
     <!-- 加载骨架屏 -->
@@ -200,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { Eye, MessageCircle, Send, BookOpen, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Eye, MessageCircle, Send, BookOpen, ChevronLeft, ChevronRight, CheckCircle2, AlertTriangle, X } from 'lucide-vue-next'
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js/lib/core'
@@ -331,7 +375,17 @@ markedInstance.setOptions({ renderer })
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const { getArticleBySlug, getComments, submitComment, likeArticle, getSiteConfig } = useApi()
+
+/** 返回按钮：若有历史记录则 back，否则回到文章列表 */
+function handleBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/articles')
+  }
+}
 const replyTo = ref<any>(null)
 const commentLoading = ref(false)
 const commentSuccess = ref(false)
@@ -426,6 +480,22 @@ const chapters = computed(() => {
   }
 
   return result
+})
+
+/**
+ * 语音朗读源文本：
+ * - 分章模式下朗读当前章节（标题 + 正文）
+ * - 普通模式下朗读全文（标题 + 摘要 + 正文）
+ */
+const speechSource = computed(() => {
+  if (!article.value) return ''
+  const title = article.value.title ? `${article.value.title}。` : ''
+  const summary = article.value.summary ? `${article.value.summary}。` : ''
+  if (chapters.value.length > 1) {
+    const ch = chapters.value[currentChapter.value]
+    return `${title}${ch?.title ? ch.title + '。' : ''}${ch?.html || ''}`
+  }
+  return `${title}${summary}${renderedContent.value}`
 })
 
 const chapterRef = ref<HTMLElement | null>(null)
@@ -533,6 +603,13 @@ useHead({
 </script>
 
 <style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s ease, transform .2s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
 .article-content {
   line-height: 1.8;
   font-size: 16px;

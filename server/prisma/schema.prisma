@@ -266,6 +266,23 @@ model ToolItem {
   @@map("tool_item")
 }
 
+// 点击热力日志：归一化坐标 (0-1)，用于热力图渲染
+model ClickLog {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  ip         String   @default("") @db.VarChar(50)
+  path       String   @default("") @db.VarChar(500)
+  x          Float    @default(0)
+  y          Float    @default(0)
+  w          Int      @default(1920)
+  h          Int      @default(1080)
+  tag        String   @default("") @db.VarChar(50)
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@index([path])
+  @@index([createTime])
+  @@map("click_log")
+}
+
 model VisitLog {
   id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   ip         String   @default("") @db.VarChar(50)
@@ -294,6 +311,26 @@ model AiChatLog {
   @@index([ip])
   @@index([createTime])
   @@map("ai_chat_log")
+}
+
+// AI 文章辅助阅读日志
+// actionType:
+//   - read    整体分析文章（思维导图/术语/摘要）
+//   - explain 解释术语或选中文本
+model AiReadLog {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  ip           String   @default("") @db.VarChar(50)
+  userAgent    String   @default("") @map("user_agent") @db.VarChar(500)
+  actionType   String   @map("action_type") @db.VarChar(20)
+  articleSlug  String   @default("") @map("article_slug") @db.VarChar(200)
+  articleTitle String   @default("") @map("article_title") @db.VarChar(200)
+  selectedText String   @default("") @map("selected_text") @db.VarChar(500)
+  createTime   DateTime @default(now()) @map("create_time")
+
+  @@index([ip])
+  @@index([actionType])
+  @@index([createTime])
+  @@map("ai_read_log")
 }
 
 model AdminUser {

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
-import { CreateTrackDto } from './dto/track.dto';
+import { BatchClickDto, CreateTrackDto, RageClickDto } from './dto/track.dto';
 import { TrackService } from './track.service';
 
 @ApiTags('访问统计')
@@ -37,5 +37,46 @@ export class TrackController {
   @ApiOperation({ summary: '获取访问统计数据' })
   getStats() {
     return this.trackService.getStats();
+  }
+
+  @Public()
+  @Post('click')
+  @ApiOperation({ summary: '上报点击坐标（热力图采集）' })
+  createClicks(@Body() dto: BatchClickDto, @Req() req: Request) {
+    const ip =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      req.socket.remoteAddress ||
+      '';
+    return this.trackService.createClicks(dto, ip);
+  }
+
+  @ApiBearerAuth()
+  @Get('heatmap')
+  @ApiOperation({ summary: '获取热力图数据（指定路径）' })
+  getHeatmap(@Query('path') path: string, @Query('limit') limit?: string) {
+    return this.trackService.getHeatmap(path || '', limit ? +limit : 2000);
+  }
+
+  @Public()
+  @Post('rage-click')
+  @ApiOperation({ summary: '上报愤怒点击（Rage Click）事件' })
+  reportRage(@Body() dto: RageClickDto, @Req() req: Request) {
+    const ip =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      req.socket.remoteAddress ||
+      '';
+    return this.trackService.reportRageClick(
+      dto.path || '',
+      Math.min(Math.max(Number(dto.count) || 4, 4), 50),
+      ip,
+      { x: dto.x, y: dto.y, tag: dto.tag },
+    );
+  }
+
+  @ApiBearerAuth()
+  @Get('heatmap/paths')
+  @ApiOperation({ summary: '获取有点击数据的路径列表' })
+  getHeatmapPaths() {
+    return this.trackService.getClickPaths();
   }
 }

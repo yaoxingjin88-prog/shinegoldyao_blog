@@ -11,6 +11,7 @@
     <AppFooter />
     <ClientOnly>
       <LazyAppAiChat />
+      <LazyAppA11yWidget />
     </ClientOnly>
   </div>
 </template>

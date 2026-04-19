@@ -77,7 +77,7 @@ const mobileOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
 const navConfig = useSiteConfig()
-const siteTitle = computed(() => navConfig.value?.site_title || 'DevVoyage')
+const siteTitle = computed(() => navConfig.value?.site_title || 'ShineGoldYao')
 
 const { t, locale, locales, setLocale } = useI18n()
 const availableLocales = computed(() => (locales.value as any[]).filter((l: any) => l.code !== locale.value))
@@ -88,10 +88,11 @@ function switchLang() {
 
 const navItems = computed(() => [
   { to: '/', label: t('nav.home') },
-  { to: '/about', label: t('nav.about') },
   { to: '/articles', label: t('nav.articles') },
+  { to: '/graph', label: t('nav.graph') },
   { to: '/projects', label: t('nav.projects') },
   { to: '/tools', label: t('nav.tools') },
+  { to: '/about', label: t('nav.about') },
   { to: '/contact', label: t('nav.contact') },
 ])
 

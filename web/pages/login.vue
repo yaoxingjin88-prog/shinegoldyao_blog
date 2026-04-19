@@ -198,7 +198,7 @@ import {
 
 const { t } = useI18n()
 const loginConfig = useSiteConfig()
-const siteTitle = computed(() => loginConfig.value?.site_title || 'DevVoyage')
+const siteTitle = computed(() => loginConfig.value?.site_title || 'ShineGoldYao')
 
 const tabs = computed(() => [
   { key: 'wechat', label: t('login.tabWechat') },

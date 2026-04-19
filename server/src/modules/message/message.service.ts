@@ -2,10 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMessageDto, QueryMessageDto } from './dto/message.dto';
+import { SensitiveService, SensitiveStrategy } from '../../common/sensitive/sensitive.service';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class MessageService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private sensitive: SensitiveService,
+    private events: EventsService,
+  ) {}
 
   async findAll(query: QueryMessageDto) {
     const { page = 1, pageSize = 10, isRead } = query;
@@ -24,12 +30,21 @@ export class MessageService {
     return { list, total, page, pageSize };
   }
 
-  create(dto: CreateMessageDto, req: Request) {
+  async create(dto: CreateMessageDto, req: Request) {
+    // 敏感词校验：命中即抛 400，阻止入库
+    this.sensitive.enforceFields(
+      { nickname: dto.nickname, content: dto.content, contact: dto.contact },
+      SensitiveStrategy.REJECT,
+    );
+
     const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
     const userAgent = req.headers['user-agent'] || '';
-    return this.prisma.message.create({
+    const created = await this.prisma.message.create({
       data: { ...dto, ipAddress, userAgent } as any,
     });
+    // WebSocket 实时推送：新留言
+    this.events.pushMessage(dto.nickname || '匿名', dto.content || '');
+    return created;
   }
 
   async markRead(id: number) {

@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { Home, UserCircle, FileText, FolderOpen, Compass, MessageCircle } from 'lucide-vue-next'
+import { Home, UserCircle, FileText, FolderOpen, Compass, MessageCircle, Network } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -47,10 +47,11 @@ function onLeave() {
 
 const navItems = computed(() => [
   { to: '/', label: t('nav.home'), icon: Home },
-  { to: '/about', label: t('nav.about'), icon: UserCircle },
   { to: '/articles', label: t('nav.articles'), icon: FileText },
+  { to: '/graph', label: t('nav.graph'), icon: Network },
   { to: '/projects', label: t('nav.projects'), icon: FolderOpen },
   { to: '/tools', label: t('nav.tools'), icon: Compass },
+  { to: '/about', label: t('nav.about'), icon: UserCircle },
   { to: '/contact', label: t('nav.contact'), icon: MessageCircle },
 ])
 

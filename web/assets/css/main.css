@@ -43,3 +43,70 @@
     transform: translateY(0);
   }
 }
+
+/* ============================================================
+ * 无障碍全局样式（由 AppA11yWidget 组件控制 html 根节点 class）
+ * ============================================================ */
+
+/* 字体缩放：基于根字号 × CSS 变量，影响所有 rem 单位与未显式设置字号的元素 */
+html.a11y-scale {
+  font-size: calc(16px * var(--a11y-font-scale, 1));
+}
+
+/* 高对比度：黑底黄字，按钮反色，链接加粗 */
+html.a11y-high-contrast,
+html.a11y-high-contrast body {
+  background: #000 !important;
+  color: #ffeb3b !important;
+}
+html.a11y-high-contrast *,
+html.a11y-high-contrast *::before,
+html.a11y-high-contrast *::after {
+  background-color: transparent !important;
+  color: #ffeb3b !important;
+  border-color: #ffeb3b !important;
+  box-shadow: none !important;
+}
+html.a11y-high-contrast a,
+html.a11y-high-contrast button,
+html.a11y-high-contrast [role="button"] {
+  color: #00e5ff !important;
+  text-decoration: underline !important;
+  font-weight: 700 !important;
+}
+html.a11y-high-contrast img,
+html.a11y-high-contrast video,
+html.a11y-high-contrast canvas {
+  filter: brightness(0.85) contrast(1.2);
+}
+html.a11y-high-contrast input,
+html.a11y-high-contrast textarea,
+html.a11y-high-contrast select {
+  background-color: #000 !important;
+  color: #ffeb3b !important;
+  border: 2px solid #ffeb3b !important;
+}
+
+/* 护眼模式：柔和米黄滤镜 */
+html.a11y-sepia body {
+  filter: sepia(0.25) hue-rotate(-10deg) brightness(0.98);
+}
+
+/* 减少动效：关闭所有过渡与动画 */
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* 强调链接：下划线 + 背景高亮 */
+html.a11y-emphasize-links a:not(.a11y-trigger):not(.sidebar-item):not(nav a) {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  background-color: rgba(250, 204, 21, 0.25) !important;
+  padding: 0 3px;
+  border-radius: 3px;
+}
