@@ -1,6 +1,7 @@
 <template>
   <ClientOnly>
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <!-- 位置与 AI 聊天按钮错开：音乐在右下偏上，AI 聊天在最右下 -->
+    <div class="fixed right-4 sm:right-6 z-50 flex flex-col items-end gap-3" style="bottom: calc(1.5rem + 64px)">
       <!-- 展开面板 -->
       <Transition name="player-panel">
         <div

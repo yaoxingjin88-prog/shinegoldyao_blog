@@ -169,6 +169,113 @@ ${plainContent}`;
   }
 
   /**
+   * AI 润色 / 重写选中文本
+   * @param text 用户在编辑器中选中的文本
+   * @param action 'polish' 润色 | 'rewrite' 重写
+   * @param context 文章标题或上下文
+   */
+  async polishOrRewrite(
+    text: string,
+    action: 'polish' | 'rewrite',
+    context?: string,
+  ): Promise<string | null> {
+    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    if (!apiKey) return null;
+    const trimmed = String(text || '').trim().slice(0, 3000);
+    if (!trimmed) return null;
+
+    const instructions: Record<string, string> = {
+      polish:
+        '对以下文本进行润色。要求：保持原意不变，优化措辞和句式，使语句更流畅、更专业。保持技术准确性。保留原有的 Markdown 格式标记。直接输出润色后的文本，不要任何前缀说明。',
+      rewrite:
+        '对以下文本进行重写。要求：理解原文含义后用全新的表达方式重新撰写，使文字更生动、更有感染力，但保持技术准确性。保留原有的 Markdown 格式标记。直接输出重写后的文本，不要任何前缀说明。',
+    };
+
+    const systemPrompt = `你是一个资深技术博客写作助手，擅长将程序员写的技术文章打磨得既专业又易读。`;
+    const ctx = context ? `\n\n所在文章标题：${String(context).slice(0, 200)}` : '';
+    const userPrompt = `${instructions[action]}\n\n原文：\n${trimmed}${ctx}`;
+
+    return this.callText(apiKey, systemPrompt, userPrompt);
+  }
+
+  /**
+   * AI 续写：基于选中文本及上下文继续撰写
+   */
+  async continueWriting(text: string, context?: string): Promise<string | null> {
+    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    if (!apiKey) return null;
+    const trimmed = String(text || '').trim().slice(0, 3000);
+    if (!trimmed) return null;
+
+    const systemPrompt = `你是一个资深技术博客写作助手。用户会给你一段文本末尾，你需要自然地续写下去。要求：
+1. 续写内容与原文风格一致
+2. 保持技术准确性
+3. 续写 100-200 字左右
+4. 保持 Markdown 格式
+5. 直接输出续写内容，不要任何前缀说明。`;
+
+    const ctx = context ? `\n\n文章标题：${String(context).slice(0, 200)}` : '';
+    const userPrompt = `请续写以下内容：\n\n${trimmed}${ctx}`;
+
+    return this.callText(apiKey, systemPrompt, userPrompt);
+  }
+
+  /**
+   * AI 精简：压缩文本，去除冗余
+   */
+  async condenseText(text: string, context?: string): Promise<string | null> {
+    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    if (!apiKey) return null;
+    const trimmed = String(text || '').trim().slice(0, 3000);
+    if (!trimmed) return null;
+
+    const systemPrompt = `你是一个资深技术博客编辑。用户会给你一段文本，你需要精简它。要求：
+1. 删除冗余表达，保留核心信息
+2. 保持技术准确性
+3. 字数压缩至原文的 50%-70%
+4. 保持 Markdown 格式
+5. 直接输出精简后的文本，不要任何前缀说明。`;
+
+    const ctx = context ? `\n\n文章标题：${String(context).slice(0, 200)}` : '';
+    const userPrompt = `请精简以下文本：\n\n${trimmed}${ctx}`;
+
+    return this.callText(apiKey, systemPrompt, userPrompt);
+  }
+
+  /** 通用文本（非 JSON）调用 */
+  private async callText(apiKey: string, systemPrompt: string, userPrompt: string): Promise<string | null> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const response = await fetch(this.apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: 'qwen-turbo',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.5,
+        }),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        this.logger.error(`Qwen API error: ${response.status}`);
+        return null;
+      }
+      const data: any = await response.json();
+      return String(data?.choices?.[0]?.message?.content || '').trim() || null;
+    } catch (err: any) {
+      if (err?.name === 'AbortError') this.logger.warn('AI callText 超时');
+      else this.logger.error('AI callText 失败', err);
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
    * 解释术语或选中文本
    * @param text 用户选中或点击的术语/文本
    * @param context 可选的上下文（文章标题或周围段落），帮助模型理解语境

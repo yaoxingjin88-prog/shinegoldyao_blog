@@ -28,16 +28,20 @@ async function bootstrap() {
   const nodeEnv = config.get<string>('nodeEnv') || 'development';
   app.enableCors({
     origin: (origin, callback) => {
+      // 无 origin（如 curl、Postman、同源请求）直接放行
       if (!origin) return callback(null, true);
+      // 白名单精确匹配
       if (corsOrigins.includes(origin)) return callback(null, true);
+      // 开发环境放行所有 localhost / 127.0.0.1
       if (nodeEnv === 'development' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
+      console.warn(`[CORS] Blocked origin: ${origin}`);
       callback(null, false);
     },
     credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization,Accept',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
   const swaggerConfig = new DocumentBuilder()

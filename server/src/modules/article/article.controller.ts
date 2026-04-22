@@ -4,7 +4,7 @@ import type { Request } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { CacheTTL } from '../../common/interceptors/cache.interceptor';
 import { ArticleService } from './article.service';
-import { AiExplainDto, AiGenerateDto, CreateArticleDto, QueryArticleDto, UpdateArticleDto } from './dto/article.dto';
+import { AiExplainDto, AiGenerateDto, AiWriteAssistDto, CreateArticleDto, QueryArticleDto, UpdateArticleDto } from './dto/article.dto';
 
 @ApiTags('文章')
 @Controller('article')
@@ -78,6 +78,13 @@ export class ArticleController {
   private getIp(req: Request): string {
     const xff = req.headers['x-forwarded-for'] as string | undefined;
     return (xff?.split(',')[0] || req.socket?.remoteAddress || '').trim();
+  }
+
+  @ApiBearerAuth()
+  @Post('ai-write-assist')
+  @ApiOperation({ summary: 'AI 写作辅助：润色 / 重写 / 续写 / 精简（选中文本）' })
+  aiWriteAssist(@Body() dto: AiWriteAssistDto) {
+    return this.articleService.aiWriteAssist(dto.text, dto.action, dto.context);
   }
 
   @ApiBearerAuth()

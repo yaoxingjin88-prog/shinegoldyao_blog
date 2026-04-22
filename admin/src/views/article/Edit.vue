@@ -21,8 +21,17 @@
             </el-space>
           </el-form-item>
           <el-form-item label="内容" prop="content">
-            <MdEditor v-if="editorVisible" v-model="form.content" :style="{ width: '100%', height: '500px' }" />
+            <MdEditor v-if="editorVisible" v-model="form.content" editorId="article-md-editor" :style="{ width: '100%', height: '500px' }" />
           </el-form-item>
+
+    <!-- AI 写作辅助悬浮菜单 -->
+    <AiWriteAssist
+      editor-id="article-md-editor"
+      :article-title="form.title"
+      @replace="onAiReplace"
+      @append="onAiAppend"
+      @generate-seo="handleAiGenerate"
+    />
         </el-col>
         <el-col :span="8">
           <el-card shadow="never">
@@ -61,6 +70,7 @@ import { MagicStick, InfoFilled } from '@element-plus/icons-vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { articleApi, categoryApi, tagApi } from '../../api'
+import AiWriteAssist from '../../components/AiWriteAssist.vue'
 import type { ArticleCategory, ArticleTag } from '../../types'
 
 const route = useRoute()
@@ -128,6 +138,48 @@ async function handleAiGenerate() {
   }
 }
 
+function onAiReplace(payload: { start: number; end: number; text: string }) {
+  const { start, end, text } = payload
+  if (start >= 0 && end > start) {
+    form.content = form.content.substring(0, start) + text + form.content.substring(end)
+  } else {
+    // CodeMirror 选区：通过选中文本匹配替换（第一处）
+    const idx = form.content.indexOf(selectedTextCache)
+    if (idx !== -1) {
+      form.content = form.content.substring(0, idx) + text + form.content.substring(idx + selectedTextCache.length)
+    }
+  }
+}
+
+function onAiAppend(payload: { position: number; text: string }) {
+  const { position, text } = payload
+  if (position >= 0) {
+    form.content = form.content.substring(0, position) + text + form.content.substring(position)
+  } else {
+    // CodeMirror：追加到选中文本后
+    const idx = form.content.indexOf(selectedTextCache)
+    if (idx !== -1) {
+      const end = idx + selectedTextCache.length
+      form.content = form.content.substring(0, end) + text + form.content.substring(end)
+    } else {
+      form.content += text
+    }
+  }
+}
+
+// 用于 CodeMirror 模式下无法取 start/end 时的回退匹配
+let selectedTextCache = ''
+// 监听子组件获取的选区文本（通过 DOM 事件同步）
+function syncSelectedText() {
+  const sel = window.getSelection()
+  if (sel && sel.toString().trim()) {
+    selectedTextCache = sel.toString().trim()
+  }
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('mouseup', syncSelectedText)
+}
+
 async function handleSubmit(isPublish: number) {
   await formRef.value?.validate()
   loading.value = true
@@ -176,5 +228,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   // 隐藏编辑器，避免组件卸载时的DOM错误
   editorVisible.value = false
+  document.removeEventListener('mouseup', syncSelectedText)
 })
 </script>

@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image', '@nuxtjs/i18n'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image', '@nuxtjs/i18n', '@vite-pwa/nuxt'],
   i18n: {
     locales: [
       { code: 'zh', name: '中文', file: 'zh.json' },
@@ -40,10 +40,103 @@ export default defineNuxtConfig({
         { property: 'og:site_name', content: '姚兴金的个人技术博客' },
         { property: 'og:locale', content: 'zh_CN' },
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'apple-mobile-web-app-title', content: 'ShineGoldYao' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/pwa-192x192.svg' },
       ],
+    },
+  },
+  // ─── PWA 渐进式 Web 应用 ───
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: '姚兴金 - ShineGoldYao 技术博客',
+      short_name: 'ShineGoldYao',
+      description: '姚兴金的个人技术博客，专注全栈开发、前端工程化与开源项目分享',
+      theme_color: '#0f172a',
+      background_color: '#0f172a',
+      display: 'standalone',
+      orientation: 'portrait',
+      scope: '/',
+      start_url: '/',
+      lang: 'zh-CN',
+      icons: [
+        {
+          src: '/pwa-192x192.svg',
+          sizes: '192x192',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/pwa-512x512.svg',
+          sizes: '512x512',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/pwa-maskable-512x512.svg',
+          sizes: '512x512',
+          type: 'image/svg+xml',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    workbox: {
+      // 预缓存：导航页面
+      navigateFallback: '/',
+      // 运行时缓存策略
+      runtimeCaching: [
+        {
+          // API 请求：NetworkFirst（优先拿最新数据，离线时回退缓存）
+          urlPattern: /^\/api\/.*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'api-cache',
+            expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // 文章页面：StaleWhileRevalidate（先用缓存立刻展示，后台更新）
+          urlPattern: /\/articles\/.*/i,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'article-pages',
+            expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // 静态资源（JS/CSS/字体）：CacheFirst（离线可用）
+          urlPattern: /\.(?:js|css|woff2?|ttf|eot)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets',
+            expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // 图片：CacheFirst（大幅减少流量）
+          urlPattern: /\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'image-cache',
+            expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+      ],
+    },
+    // 开发环境也启用 PWA 以便调试
+    devOptions: {
+      enabled: false,
+      type: 'module',
+    },
+    client: {
+      installPrompt: true,
     },
   },
   tailwindcss: { cssPath: '~/assets/css/main.css' },

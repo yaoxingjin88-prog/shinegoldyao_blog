@@ -43,6 +43,8 @@ export const articleApi = {
       '/article/ai-generate',
       data,
     ),
+  aiWriteAssist: (data: { text: string; action: 'polish' | 'rewrite' | 'continue' | 'condense'; context?: string }) =>
+    request.post<any, { result: string; enabled: boolean }>('/article/ai-write-assist', data),
   aiLogs: (params?: { page?: number; pageSize?: number; actionType?: 'read' | 'explain' }) =>
     request.get<any, { list: any[]; total: number; page: number; pageSize: number }>('/article/admin/ai-logs', { params }),
 }

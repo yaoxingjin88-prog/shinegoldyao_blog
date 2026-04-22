@@ -43,6 +43,23 @@ export class AiExplainDto {
   context?: string;
 }
 
+export class AiWriteAssistDto {
+  @ApiProperty({ description: '选中的文本' })
+  @IsNotEmpty()
+  @IsString()
+  text: string;
+
+  @ApiProperty({ description: '操作类型', enum: ['polish', 'rewrite', 'continue', 'condense'] })
+  @IsNotEmpty()
+  @IsString()
+  action: 'polish' | 'rewrite' | 'continue' | 'condense';
+
+  @ApiPropertyOptional({ description: '文章标题（上下文）' })
+  @IsOptional()
+  @IsString()
+  context?: string;
+}
+
 export class QueryArticleDto extends PaginationDto {
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() categoryId?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() tagId?: number;

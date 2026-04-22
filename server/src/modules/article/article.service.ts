@@ -24,6 +24,24 @@ export class ArticleService {
     return { ...meta, matchedTagIds };
   }
 
+  /** AI 写作辅助：润色 / 重写 / 续写 / 精简 */
+  async aiWriteAssist(text: string, action: 'polish' | 'rewrite' | 'continue' | 'condense', context?: string) {
+    let result: string | null = null;
+    switch (action) {
+      case 'polish':
+      case 'rewrite':
+        result = await this.aiContent.polishOrRewrite(text, action, context);
+        break;
+      case 'continue':
+        result = await this.aiContent.continueWriting(text, context);
+        break;
+      case 'condense':
+        result = await this.aiContent.condenseText(text, context);
+        break;
+    }
+    return { result: result || '', enabled: this.aiContent.enabled };
+  }
+
   /** AI 解释术语或选中文本 */
   async aiExplain(text: string, context?: string, ip = '', userAgent = '') {
     // 异步记录日志（不阻塞）

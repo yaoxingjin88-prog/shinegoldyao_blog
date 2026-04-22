@@ -10,6 +10,8 @@
     </main>
     <AppFooter />
     <ClientOnly>
+      <LazyAppPwaInstall />
+      <LazyAppMusicPlayer />
       <LazyAppAiChat />
       <LazyAppA11yWidget />
     </ClientOnly>

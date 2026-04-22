@@ -1,6 +1,6 @@
 # DevVoyage · ShineGoldYao 技术博客
 
-> 一个现代化的全栈个人技术博客系统，采用前后端分离 + 后台管理三端架构，支持 SSR、国际化、深色模式、Markdown 文章、AI 助手、访问统计等完整功能。
+> 一个现代化的全栈个人技术博客系统，采用前后端分离 + 后台管理三端架构，支持 SSR、沉浸式 AI 辅助创作（Co-pilot）、PWA 离线阅读、国际化、深色模式、Markdown 文章、AI 助手、访问统计等完整功能。
 
 **在线地址**：[https://shinegoldyao.store](https://shinegoldyao.store)
 
@@ -67,6 +67,7 @@
 - **Markdown**：`marked` + `highlight.js` + `marked-highlight`
 - **图标**：`lucide-vue-next`
 - **渲染模式**：SSR + SWR 路由级缓存
+- **PWA**：`@vite-pwa/nuxt` + Workbox（离线缓存 + 桌面安装）
 
 ### 后台管理 (`admin/`)
 
@@ -169,10 +170,17 @@
 - **深色模式**：系统主题检测 + 手动切换
 - **流星特效**：Canvas 实现的背景粒子动画（可配置开关）
 - **SEO**：动态 `<Head>`、OpenGraph、`robots`、结构化数据
+- **PWA**：手机浏览器“添加到主屏幕”，断网离线仍可阅读已缓存文章
+  - Service Worker 四层缓存策略：API (NetworkFirst) / 文章页 (StaleWhileRevalidate) / 静态资源 (CacheFirst) / 图片 (CacheFirst)
+  - `standalone` 模式无浏览器地址栏，iOS 适配
 
 ### 后台功能
 - **仪表盘**：文章/访问/留言数据概览
 - **内容管理**：文章（含 Gitee 导入）、分类、标签、项目、技能、工具
+- **AI 辅助创作（Co-pilot）**：在 Markdown 编辑器中划选文本，弹出悬浮 AI 菜单
+  - 💎 AI 润色 / 🔄 AI 重写 / ✏️ AI 续写 / 📐 AI 精简
+  - 🏷️ 一键生成 SEO TDK（Title / Description / Keywords）
+  - 原文 vs AI 结果对比预览，确认后一键替换
 - **站点配置**：标题、SEO、特效开关、社交链接
 - **访问统计**：PV/UV、设备/浏览器/OS 分析、路径追踪
 - **消息管理**：留言审核、评论审批
@@ -258,7 +266,7 @@ JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
 
 # CORS 白名单（逗号分隔）
-CORS_ORIGINS=http://localhost:3001,http://localhost:3002,https://shinegoldyao.store
+CORS_ORIGINS=http://localhost:3001,http://localhost:3002,http://localhost:3003,https://shinegoldyao.store
 
 # 上传目录
 UPLOAD_DIR=./uploads
@@ -386,6 +394,7 @@ npm run build
 - **埋点优化**：访问统计优先使用 `navigator.sendBeacon`，回退 `fetch({ keepalive: true })`
 - **状态共享**：`useSiteConfig` 基于 `useAsyncData` 全局缓存，避免重复请求
 - **资源压缩**：Nitro 开启 Gzip + Brotli
+- **PWA 离线缓存**：@vite-pwa/nuxt + Workbox 四层缓存策略（NetworkFirst / StaleWhileRevalidate / CacheFirst），断网仍可阅读已缓存文章
 
 ### 后端 (server)
 
@@ -445,7 +454,10 @@ Authorization: Bearer <your-jwt-token>
 | `Music` | 音乐播放器歌单 |
 | `Tool` | 工具导航 |
 | `AiChat` | AI 对话记录 |
+| `AiReadLog` | AI 阅读辅助日志 |
 | `VisitLog` | 访问日志 |
+| `ClickLog` | 点击热力图日志 |
+| `RageClick` | 愤怒点击记录 |
 
 所有业务表均含 `createTime` / `updateTime` / `deleteTime` 三个时间字段，支持软删除。
 

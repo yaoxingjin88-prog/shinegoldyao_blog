@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.11.4",
+    "@vite-pwa/nuxt": "^1.1.1",
     "typescript": "^5.3.3"
   }
 }
