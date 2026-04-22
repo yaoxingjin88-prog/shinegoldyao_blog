@@ -19,11 +19,15 @@
         </div>
         <div class="pwa-install-text">
           <p class="pwa-install-title">添加到主屏幕</p>
-          <p class="pwa-install-desc">安装为 App，离线也能阅读文章</p>
+          <p class="pwa-install-desc">
+            <template v-if="isIosSafari()">点击 Safari 底部分享按钮，选择「添加到主屏幕」</template>
+            <template v-else>安装为 App，离线也能阅读文章</template>
+          </p>
         </div>
       </div>
       <div class="pwa-install-actions">
-        <button class="pwa-btn pwa-btn-install" @click="handleInstall">安装</button>
+        <button v-if="deferredPrompt" class="pwa-btn pwa-btn-install" @click="handleInstall">安装</button>
+        <button v-else-if="isIosSafari()" class="pwa-btn pwa-btn-install" @click="handleDismiss">知道了</button>
         <button class="pwa-btn pwa-btn-dismiss" @click="handleDismiss">以后再说</button>
       </div>
     </div>
@@ -35,6 +39,18 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const showBanner = ref(false)
 let deferredPrompt: any = null
+
+/** 检测是否是 iOS Safari（不支持 beforeinstallprompt） */
+function isIosSafari() {
+  const ua = navigator.userAgent
+  return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS/.test(ua)
+}
+
+/** 检测是否已经以 standalone 模式运行（已安装） */
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+    || (navigator as any).standalone === true
+}
 
 function onBeforeInstall(e: Event) {
   e.preventDefault()
@@ -61,7 +77,20 @@ function handleDismiss() {
 }
 
 onMounted(() => {
+  // 已安装则不显示
+  if (isStandalone()) return
+
+  // Android/Chrome：监听 beforeinstallprompt
   window.addEventListener('beforeinstallprompt', onBeforeInstall)
+
+  // iOS Safari：不支持 beforeinstallprompt，直接显示引导
+  if (isIosSafari()) {
+    const dismissed = localStorage.getItem('pwa_dismissed')
+    if (!dismissed || Date.now() - Number(dismissed) > 7 * 24 * 60 * 60 * 1000) {
+      showBanner.value = true
+    }
+  }
+
   window.addEventListener('appinstalled', () => {
     showBanner.value = false
     deferredPrompt = null

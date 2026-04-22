@@ -46,7 +46,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'apple-touch-icon', href: '/pwa-192x192.svg' },
+        { rel: 'apple-touch-icon', href: '/pwa-192x192.png' },
       ],
     },
   },
@@ -66,19 +66,19 @@ export default defineNuxtConfig({
       lang: 'zh-CN',
       icons: [
         {
-          src: '/pwa-192x192.svg',
+          src: '/pwa-192x192.png',
           sizes: '192x192',
-          type: 'image/svg+xml',
+          type: 'image/png',
         },
         {
-          src: '/pwa-512x512.svg',
+          src: '/pwa-512x512.png',
           sizes: '512x512',
-          type: 'image/svg+xml',
+          type: 'image/png',
         },
         {
-          src: '/pwa-maskable-512x512.svg',
+          src: '/pwa-maskable-512x512.png',
           sizes: '512x512',
-          type: 'image/svg+xml',
+          type: 'image/png',
           purpose: 'maskable',
         },
       ],
@@ -132,7 +132,7 @@ export default defineNuxtConfig({
     },
     // 开发环境也启用 PWA 以便调试
     devOptions: {
-      enabled: false,
+      enabled: true,
       type: 'module',
     },
     client: {
