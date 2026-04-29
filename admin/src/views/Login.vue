@@ -41,6 +41,10 @@
               <el-button type="primary" size="large" class="login-btn" :loading="loading" native-type="submit">登 录</el-button>
             </el-form-item>
           </el-form>
+          <div class="demo-account">
+            <span class="demo-label">测试账号</span>
+            <span class="demo-info">admin / admin123456</span>
+          </div>
         </div>
       </div>
     </div>
@@ -248,7 +252,24 @@ async function handleLogin() {
 .login-btn:hover {
   background: linear-gradient(135deg, #4338ca, #4f46e5);
 }
-
+.demo-account {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.demo-label {
+  color: #6b7280;
+}
+.demo-info {
+  color: #4f46e5;
+  font-weight: 500;
+}
 @media (max-width: 860px) {
   .login-box {
     flex-direction: column;
