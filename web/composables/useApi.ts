@@ -4,6 +4,7 @@ export function useApi() {
 
   async function $api<T = any>(url: string, opts?: Record<string, any>): Promise<T> {
     try {
+      // 使用 $fetch 发送请求
       const res = await $fetch<{ code: number; message: string; data: T }>(baseURL + url, {
         ...opts,
       })
@@ -23,11 +24,11 @@ export function useApi() {
     getBanners: () => $api<any[]>('/banner'),
     getSkillCategories: () => $api<any[]>('/skill/categories'),
     getArticles: (params?: Record<string, any>) => $api<any>('/article', { params }),
-    getArticleBySlug: (slug: string) => $api<any>(`/article/${slug}`),
-    likeArticle: (slug: string) => $api<{ likeCount: number }>(`/article/${slug}/like`, { method: 'POST' }),
+    getArticleBySlug: (slug: string) => $api<any>(`/article/${encodeURIComponent(slug)}`),
+    likeArticle: (slug: string) => $api<{ likeCount: number }>(`/article/${encodeURIComponent(slug)}/like`, { method: 'POST' }),
     aiReadArticle: (slug: string, mode: 'mindmap' | 'terms' | 'all' = 'all') =>
       $api<{ mindmap: any; terms: { term: string; explanation: string }[]; summary: string; enabled: boolean }>(
-        `/article/${slug}/ai-read`,
+        `/article/${encodeURIComponent(slug)}/ai-read`,
         { params: { mode } },
       ),
     aiExplainText: (text: string, context?: string) =>
@@ -47,5 +48,7 @@ export function useApi() {
       $api('/comment', { method: 'POST', body: data }),
     getMusicList: () => $api<any[]>('/music'),
     getTools: () => $api<any[]>('/tool'),
+    login: (data: { username: string; password: string }) =>
+      $api<{ accessToken: string; refreshToken: string }>('/auth/login', { method: 'POST', body: data }),
   }
 }
