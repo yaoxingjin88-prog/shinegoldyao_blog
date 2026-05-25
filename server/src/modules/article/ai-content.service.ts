@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export interface AiArticleMeta {
@@ -25,19 +25,30 @@ export interface AiReadResult {
 }
 
 /**
- * AI 内容服务：基于文章标题 + 正文，调用大模型（通义千问 qwen-turbo）
+ * AI 内容服务：基于文章标题 + 正文，调用大模型
  * 生成：TL;DR 摘要 / SEO 关键词 / 推荐标签 / SEO 描述
  */
 @Injectable()
 export class AiContentService {
   private readonly logger = new Logger(AiContentService.name);
-  private readonly apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
   private readonly timeoutMs = 20000;
 
   constructor(private readonly configService: ConfigService) {}
 
   get enabled(): boolean {
-    return !!this.configService.get<string>('dashscopeApiKey');
+    return !!this.getApiKey();
+  }
+
+  private getApiKey(): string {
+    return this.configService.get<string>('ai.apiKey')?.trim() || '';
+  }
+
+  private getApiUrl(): string {
+    return this.configService.get<string>('ai.baseUrl')?.trim() || '';
+  }
+
+  private getModel(): string {
+    return this.configService.get<string>('ai.model')?.trim() || 'deepseek-chat';
   }
 
   /**
@@ -45,9 +56,9 @@ export class AiContentService {
    * 失败时返回 null，调用方应对空值做回退处理
    */
   async generateMeta(title: string, content: string): Promise<AiArticleMeta | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) {
-      this.logger.warn('DASHSCOPE_API_KEY 未配置，跳过 AI 摘要/标签生成');
+      this.logger.warn('AI_API_KEY 未配置，跳过 AI 摘要/标签生成');
       return null;
     }
 
@@ -76,14 +87,14 @@ ${plainContent}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.getApiUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'qwen-turbo',
+          model: this.getModel(),
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -96,7 +107,7 @@ ${plainContent}`;
 
       if (!response.ok) {
         const text = await response.text().catch(() => '');
-        this.logger.error(`Qwen API error: ${response.status} ${text}`);
+        this.logger.error(`AI API error: ${response.status} ${text}`);
         return null;
       }
 
@@ -124,7 +135,7 @@ ${plainContent}`;
     content: string,
     mode: 'mindmap' | 'terms' | 'all' = 'all',
   ): Promise<AiReadResult | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) return null;
     const plain = this.stripMarkdown(content).slice(0, 7000);
     if (!plain.trim()) return null;
@@ -179,7 +190,7 @@ ${plainContent}`;
     action: 'polish' | 'rewrite',
     context?: string,
   ): Promise<string | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) return null;
     const trimmed = String(text || '').trim().slice(0, 3000);
     if (!trimmed) return null;
@@ -202,7 +213,7 @@ ${plainContent}`;
    * AI 续写：基于选中文本及上下文继续撰写
    */
   async continueWriting(text: string, context?: string): Promise<string | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) return null;
     const trimmed = String(text || '').trim().slice(0, 3000);
     if (!trimmed) return null;
@@ -224,7 +235,7 @@ ${plainContent}`;
    * AI 精简：压缩文本，去除冗余
    */
   async condenseText(text: string, context?: string): Promise<string | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) return null;
     const trimmed = String(text || '').trim().slice(0, 3000);
     if (!trimmed) return null;
@@ -247,11 +258,11 @@ ${plainContent}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.getApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: 'qwen-turbo',
+          model: this.getModel(),
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -281,7 +292,7 @@ ${plainContent}`;
    * @param context 可选的上下文（文章标题或周围段落），帮助模型理解语境
    */
   async explainText(text: string, context?: string): Promise<string | null> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.getApiKey();
     if (!apiKey) return null;
     const trimmed = String(text || '').trim().slice(0, 500);
     if (!trimmed) return null;
@@ -297,11 +308,11 @@ ${plainContent}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.getApiUrl(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: 'qwen-turbo',
+          model: this.getModel(),
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -327,14 +338,14 @@ ${plainContent}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.getApiUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'qwen-turbo',
+          model: this.getModel(),
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -345,7 +356,7 @@ ${plainContent}`;
         signal: controller.signal,
       });
       if (!response.ok) {
-        this.logger.error(`Qwen API error: ${response.status}`);
+        this.logger.error(`AI API error: ${response.status}`);
         return null;
       }
       const data: any = await response.json();

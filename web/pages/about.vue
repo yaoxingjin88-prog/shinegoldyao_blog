@@ -125,7 +125,7 @@ const { data } = await useAsyncData('about', async () => {
   return { skills, exps }
 }, {
   lazy: true,
-  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 
 watch(data, (val) => {

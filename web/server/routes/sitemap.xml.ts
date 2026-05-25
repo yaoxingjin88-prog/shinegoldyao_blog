@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
     const date = lastmod ? new Date(lastmod).toISOString().split('T')[0] : now
     xml += `
   <url>
-    <loc>${SITE_URL}/articles/${article.slug}</loc>
+    <loc>${SITE_URL}/articles/${encodeURIComponent(article.slug)}</loc>
     <lastmod>${date}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

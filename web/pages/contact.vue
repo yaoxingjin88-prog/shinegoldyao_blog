@@ -72,7 +72,7 @@ const form = reactive({ nickname: '', email: '', content: '', contact: '' })
 
 const { data: socials } = await useAsyncData('contact-socials', () => getSocialLinks().catch(() => []), {
   lazy: true,
-  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 
 const iconMap: Record<string, any> = {

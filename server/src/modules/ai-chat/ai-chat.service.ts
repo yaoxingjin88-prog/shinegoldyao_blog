@@ -7,10 +7,9 @@ import { ChatRequestDto } from './dto/chat.dto';
 @Injectable()
 export class AiChatService {
   private readonly logger = new Logger(AiChatService.name);
-  private readonly apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
   /** 每 IP 每 24 小时最大对话次数，防止换浏览器/无痕模式绕过前端 localStorage 限制 */
-  private readonly DAILY_LIMIT = 3;
+  private readonly DAILY_LIMIT = 10;
   private readonly WINDOW_MS = 24 * 60 * 60 * 1000;
 
   constructor(
@@ -46,9 +45,19 @@ export class AiChatService {
   }
 
   async streamChat(dto: ChatRequestDto, req: Request, res: Response): Promise<void> {
-    const apiKey = this.configService.get<string>('dashscopeApiKey');
+    const apiKey = this.configService.get<string>('ai.apiKey')?.trim();
+    const apiUrl = this.configService.get<string>('ai.baseUrl')?.trim();
+    const configuredModel = this.configService.get<string>('ai.model')?.trim();
     if (!apiKey) {
       res.status(500).json({ code: 1, message: 'AI 服务未配置 API Key' });
+      return;
+    }
+    if (/[^\x00-\x7F]/.test(apiKey) || apiKey === 'your-dashscope-api-key' || apiKey === 'your-ai-api-key') {
+      res.status(500).json({ code: 1, message: 'AI 服务 API Key 配置无效' });
+      return;
+    }
+    if (!apiUrl) {
+      res.status(500).json({ code: 1, message: 'AI 服务未配置接口地址' });
       return;
     }
 
@@ -73,7 +82,7 @@ export class AiChatService {
     };
 
     const messages = [systemMessage, ...dto.messages];
-    const model = dto.model || 'qwen-turbo';
+    const model = dto.model || configuredModel || 'deepseek-chat';
     const lastUserMsg = dto.messages.filter((m) => m.role === 'user').pop();
     this.prisma.aiChatLog.create({
       data: { ip, userAgent, question: lastUserMsg?.content || '', model },
@@ -86,7 +95,7 @@ export class AiChatService {
     res.flushHeaders();
 
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +106,7 @@ export class AiChatService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logger.error(`Qwen API error: ${response.status} ${errorText}`);
+        this.logger.error(`AI API error: ${response.status} ${errorText}`);
         res.write(`data: ${JSON.stringify({ error: 'AI 服务请求失败' })}\n\n`);
         res.write('data: [DONE]\n\n');
         res.end();

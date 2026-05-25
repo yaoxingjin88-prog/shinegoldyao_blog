@@ -213,7 +213,7 @@ const isMobile = ref(false)
  * 后端按 IP 统计 24h 内的使用次数，前端 localStorage 仅做 UX 显示。
  * 用户换浏览器 / 开无痕仍将被后端拦截（返回 429）。
  */
-const MAX_CHAT_COUNT = ref(3)
+const MAX_CHAT_COUNT = ref(10)
 const chatCount = ref(0)
 const isLimited = computed(() => chatCount.value >= MAX_CHAT_COUNT.value)
 

@@ -26,7 +26,7 @@
           <span class="hidden md:block text-gray-200 dark:text-gray-700">|</span>
           <ArticleShareBar
             :title="article.title"
-            :url="`https://shinegoldyao.store/articles/${article.slug}`"
+            :url="`https://shinegoldyao.store/articles/${encodeURIComponent(article.slug)}`"
             :summary="article.summary || article.seoDescription || ''"
             :platforms="sharePlatforms"
           />
@@ -397,11 +397,11 @@ const slug = route.params.slug as string
 const [{ data: articleData }, { data: siteConfig }] = await Promise.all([
   useAsyncData(`article-${slug}`, () => getArticleBySlug(slug).catch(() => null), {
     lazy: true,
-    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
   }),
   useAsyncData('site-config', () => getSiteConfig().catch(() => ({})), {
     lazy: true,
-    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+    getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
   }),
 ])
 const article = computed(() => articleData.value)
@@ -423,7 +423,7 @@ const { data: commentsData } = await useAsyncData(`comments-${slug}`, async () =
   return getComments(articleData.value.id).catch(() => [])
 }, {
   lazy: true,
-  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 const comments = ref<any[]>(commentsData.value || [])
 watch(commentsData, (v) => { comments.value = v || [] })
@@ -593,12 +593,12 @@ useHead({
     { name: 'keywords', content: (article.value?.seoKeywords ? article.value.seoKeywords + ',' : '') + t('seo.defaultKeywords') },
     { property: 'og:title', content: article.value?.title || t('seo.article') },
     { property: 'og:description', content: article.value?.seoDescription || article.value?.summary || '' },
-    { property: 'og:url', content: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` },
+    { property: 'og:url', content: `https://shinegoldyao.store/articles/${encodeURIComponent(article.value?.slug || '')}` },
     { property: 'og:type', content: 'article' },
     { property: 'og:image', content: article.value?.coverUrl ? (article.value.coverUrl.startsWith('http') ? article.value.coverUrl : `https://shinegoldyao.store${article.value.coverUrl}`) : 'https://shinegoldyao.store/favicon.jpg' },
     { property: 'article:author', content: 'ShineGoldYao' },
   ],
-  link: [{ rel: 'canonical', href: `https://shinegoldyao.store/articles/${article.value?.slug || ''}` }],
+  link: [{ rel: 'canonical', href: `https://shinegoldyao.store/articles/${encodeURIComponent(article.value?.slug || '')}` }],
 })
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="`/articles/${article.slug}`" class="group relative rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col cursor-pointer">
+  <NuxtLink :to="`/articles/${encodeURIComponent(article.slug)}`" class="group relative rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col cursor-pointer">
     <div :class="['h-1 w-full opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-r', gradient]"></div>
     <!-- 头图区域 -->
     <div class="h-48 w-full bg-gray-50 dark:bg-gray-800/50 relative overflow-hidden p-6 flex flex-col justify-end border-b border-gray-100 dark:border-gray-800">

@@ -4,6 +4,7 @@
     "about": "About",
     "articles": "Articles",
     "projects": "Projects",
+    "roadmap": "Roadmap",
     "tools": "Tools",
     "graph": "Graph",
     "contact": "Contact",
@@ -77,6 +78,12 @@
     "recommended": "Inspiration & Picks",
     "empty": "No projects yet"
   },
+  "roadmap": {
+    "badge": "Growth Accelerator",
+    "title": "Tech",
+    "titleHighlight": "Learning Roadmap",
+    "subtitle": "Carefully planned learning paths from beginner to advanced, helping you systematically master programming skills."
+  },
   "tools": {
     "badge": "Productivity Boosters",
     "title": "Useful",
@@ -144,6 +151,9 @@
     "backToLogin": "Back to login",
     "loginDev": "Login is under development. Please wait for WeChat API integration.",
     "registerDev": "Registration is under development.",
+    "loggingIn": "Logging in...",
+    "errorEmpty": "Please enter email and password",
+    "errorFailed": "Login failed. Please check your network or contact admin.",
     "pageTitle": "Login"
   },
   "codeBlock": {

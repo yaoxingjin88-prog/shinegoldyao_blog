@@ -1,5 +1,8 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
+  experimental: {
+    appManifest: false,
+  },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/image', '@nuxtjs/i18n', '@vite-pwa/nuxt'],
   i18n: {
     locales: [
@@ -19,7 +22,7 @@ export default defineNuxtConfig({
   colorMode: { classSuffix: '', preference: 'dark', fallback: 'dark' },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000/api',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3005/api',
     },
   },
   site: {
@@ -40,6 +43,7 @@ export default defineNuxtConfig({
         { property: 'og:site_name', content: '姚兴金的个人技术博客' },
         { property: 'og:locale', content: 'zh_CN' },
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'ShineGoldYao' },
@@ -130,16 +134,15 @@ export default defineNuxtConfig({
         },
       ],
     },
-    // 开发环境也启用 PWA 以便调试
     devOptions: {
-      enabled: true,
+      enabled: false,
       type: 'module',
     },
     client: {
       installPrompt: true,
     },
   },
-  tailwindcss: { cssPath: '~/assets/css/main.css' },
+  tailwindcss: { cssPath: '@/assets/css/main.css' },
   image: {
     quality: 80,
     format: ['avif', 'webp'],
@@ -150,18 +153,28 @@ export default defineNuxtConfig({
   nitro: {
     compressPublicAssets: { gzip: true, brotli: true },
   },
-  // 路由级缓存策略（SWR 由 Nitro 统一处理，支持 Node/Vercel/Cloudflare 等部署）
-  routeRules: {
-    '/': { swr: 60 },
-    '/articles': { swr: 60 },
-    '/articles/**': { swr: 300 },
-    '/projects': { swr: 300 },
-    '/tools': { swr: 300 },
-    '/about': { swr: 600 },
-    '/login': { ssr: false },
-    '/graph': { ssr: false },
-  },
   vite: {
+    plugins: [
+      {
+        name: 'fix-windows-fs-css-url',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            if (req.url?.startsWith('/_nuxt/@fsC:/')) {
+              req.url = req.url.replace('/_nuxt/@fsC:/', '/_nuxt/@fs/C:/')
+            }
+            next()
+          })
+        },
+      },
+    ],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3005',
+          changeOrigin: true,
+        },
+      },
+    },
     build: {
       rollupOptions: {
         output: {
@@ -174,5 +187,16 @@ export default defineNuxtConfig({
         },
       },
     },
+  },
+  // 路由级缓存策略（SWR 由 Nitro 统一处理，支持 Node/Vercel/Cloudflare 等部署）
+  routeRules: {
+    '/': { swr: 60 },
+    '/articles': { swr: 60 },
+    '/articles/**': { swr: 300 },
+    '/projects': { swr: 300 },
+    '/tools': { swr: 300 },
+    '/about': { swr: 600 },
+    '/login': { ssr: false },
+    '/graph': { ssr: false },
   },
 })

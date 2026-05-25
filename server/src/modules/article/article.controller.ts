@@ -41,21 +41,6 @@ export class ArticleController {
   }
 
   @Public()
-  @Get(':slug')
-  @CacheTTL(30)
-  @ApiOperation({ summary: '获取文章详情（按slug，自增阅读数）' })
-  findBySlug(@Param('slug') slug: string) {
-    return this.articleService.findBySlug(slug);
-  }
-
-  @Public()
-  @Post(':slug/like')
-  @ApiOperation({ summary: '文章点赞' })
-  like(@Param('slug') slug: string) {
-    return this.articleService.likeBySlug(slug);
-  }
-
-  @Public()
   @Post('ai-explain')
   @ApiOperation({ summary: 'AI 解释术语或选中文本' })
   aiExplain(@Body() dto: AiExplainDto, @Req() req: Request) {
@@ -73,6 +58,21 @@ export class ArticleController {
   ) {
     const m = mode === 'mindmap' || mode === 'terms' ? mode : 'all';
     return this.articleService.aiRead(slug, m, this.getIp(req), req.headers['user-agent'] || '');
+  }
+
+  @Public()
+  @Get(':slug')
+  @CacheTTL(30)
+  @ApiOperation({ summary: '获取文章详情（按slug，自增阅读数）' })
+  findBySlug(@Param('slug') slug: string) {
+    return this.articleService.findBySlug(slug);
+  }
+
+  @Public()
+  @Post(':slug/like')
+  @ApiOperation({ summary: '文章点赞' })
+  like(@Param('slug') slug: string) {
+    return this.articleService.likeBySlug(slug);
   }
 
   private getIp(req: Request): string {

@@ -122,10 +122,12 @@
           </div>
           <button
             @click="handleLogin"
-            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+            :disabled="loading"
+            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-blue-500/20"
           >
-            {{ $t('login.loginBtn') }}
+            {{ loading ? $t('login.loggingIn') : $t('login.loginBtn') }}
           </button>
+          <p v-if="errorMsg" class="text-center text-xs text-red-500">{{ errorMsg }}</p>
           <p class="text-center text-xs text-gray-400">
             {{ $t('login.noAccount') }}<button @click="activeTab = 'register'" class="text-blue-600 dark:text-blue-400 hover:underline">{{ $t('login.registerNow') }}</button>
           </p>
@@ -206,15 +208,33 @@ const tabs = computed(() => [
 ])
 const activeTab = ref('wechat')
 const showPwd = ref(false)
+const loading = ref(false)
+const errorMsg = ref('')
 const form = reactive({
   email: '',
   password: '',
   nickname: '',
 })
 
-function handleLogin() {
-  // TODO: 对接后端登录 API
-  alert(t('login.loginDev'))
+const { login } = useApi()
+
+async function handleLogin() {
+  if (!form.email || !form.password) {
+    errorMsg.value = t('login.errorEmpty')
+    return
+  }
+  loading.value = true
+  errorMsg.value = ''
+  try {
+    const res = await login({ username: form.email, password: form.password })
+    localStorage.setItem('accessToken', res.accessToken)
+    localStorage.setItem('refreshToken', res.refreshToken)
+    navigateTo('/')
+  } catch (e: any) {
+    errorMsg.value = e.message || t('login.errorFailed')
+  } finally {
+    loading.value = false
+  }
 }
 
 function handleRegister() {

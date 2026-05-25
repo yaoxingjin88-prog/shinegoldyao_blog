@@ -211,7 +211,7 @@ function drawChart(echarts: any) {
   // 点击文章节点跳转（每次 init 后都要重新绑定，因为 dispose 会清空监听）
   chartInstance.on('click', (params: any) => {
     if (params.dataType === 'node' && params.data?.slug) {
-      router.push(`/articles/${params.data.slug}`)
+      router.push(`/articles/${encodeURIComponent(params.data.slug)}`)
     }
   })
 }

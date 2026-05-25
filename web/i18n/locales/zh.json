@@ -4,6 +4,7 @@
     "about": "关于我",
     "articles": "文章",
     "projects": "项目",
+    "roadmap": "学习",
     "tools": "工具",
     "graph": "图谱",
     "contact": "联系",
@@ -77,6 +78,12 @@
     "recommended": "灵感与推荐",
     "empty": "暂无项目"
   },
+  "roadmap": {
+    "badge": "成长加速器",
+    "title": "技术",
+    "titleHighlight": "学习路线",
+    "subtitle": "精心规划的技术成长路径，从入门到进阶，系统化掌握编程技能，少走弯路。"
+  },
   "tools": {
     "badge": "效率加速器",
     "title": "实用",
@@ -144,6 +151,9 @@
     "backToLogin": "返回登录",
     "loginDev": "登录功能开发中，请等待微信 API 对接完成",
     "registerDev": "注册功能开发中",
+    "loggingIn": "登录中...",
+    "errorEmpty": "请输入邮箱和密码",
+    "errorFailed": "登录失败，请检查网络或联系管理员",
     "pageTitle": "登录"
   },
   "codeBlock": {

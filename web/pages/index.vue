@@ -34,7 +34,7 @@ const { data: homeData } = await useAsyncData('home', async () => {
   }
 }, {
   server: true,
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 
 const banners = computed(() => homeData.value?.banners || [])

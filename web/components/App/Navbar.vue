@@ -91,6 +91,7 @@ const navItems = computed(() => [
   { to: '/articles', label: t('nav.articles') },
   { to: '/graph', label: t('nav.graph') },
   { to: '/projects', label: t('nav.projects') },
+  { to: '/roadmap', label: t('nav.roadmap') },
   { to: '/tools', label: t('nav.tools') },
   { to: '/about', label: t('nav.about') },
   { to: '/contact', label: t('nav.contact') },

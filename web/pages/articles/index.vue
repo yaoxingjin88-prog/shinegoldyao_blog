@@ -77,7 +77,7 @@ const { data: initData } = await useAsyncData('articles-init', async () => {
   return { cats, articleRes }
 }, {
   lazy: true,
-  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key: any, nuxtApp: any) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 
 watch(initData, (val) => {

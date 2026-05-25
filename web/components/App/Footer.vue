@@ -74,7 +74,7 @@ const links = computed(() => [
 ])
 
 const { data: socials } = await useAsyncData('footer-socials', () => getSocialLinks().catch(() => []), {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 const siteTitle = 'ShineGoldYao'
 const siteSubtitle = computed(() => t('footer.description'))

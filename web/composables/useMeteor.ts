@@ -17,21 +17,23 @@ export function useMeteor() {
   const meteorConfig = useState<MeteorConfig>('meteor-config', () => ({ ...DEFAULT_CONFIG }))
   const configLoaded = useState('meteor-config-loaded', () => false)
 
+  // useSiteConfig 必须在 setup 阶段调用（内部使用 useAsyncData）
+  const siteConfig = useSiteConfig()
+
   function toggleMeteor() {
     meteorActive.value = !meteorActive.value
   }
 
   // 从后端加载流星雨配置（只加载一次）
-  async function loadConfig() {
+  function loadConfig() {
     if (configLoaded.value) return
     try {
-      const data = useSiteConfig()
-      if (data.value) {
+      if (siteConfig.value) {
         const cfg = { ...DEFAULT_CONFIG }
-        if (data.value.meteor_enabled !== undefined) cfg.enabled = data.value.meteor_enabled === 'true'
-        if (data.value.meteor_density) cfg.density = Math.max(1, Math.min(10, Number(data.value.meteor_density) || 5))
-        if (data.value.meteor_speed) cfg.speed = Math.max(1, Math.min(10, Number(data.value.meteor_speed) || 5))
-        if (data.value.meteor_max_count) cfg.maxCount = Math.max(2, Math.min(30, Number(data.value.meteor_max_count) || 12))
+        if (siteConfig.value.meteor_enabled !== undefined) cfg.enabled = siteConfig.value.meteor_enabled === 'true'
+        if (siteConfig.value.meteor_density) cfg.density = Math.max(1, Math.min(10, Number(siteConfig.value.meteor_density) || 5))
+        if (siteConfig.value.meteor_speed) cfg.speed = Math.max(1, Math.min(10, Number(siteConfig.value.meteor_speed) || 5))
+        if (siteConfig.value.meteor_max_count) cfg.maxCount = Math.max(2, Math.min(30, Number(siteConfig.value.meteor_max_count) || 12))
         meteorConfig.value = cfg
         meteorActive.value = cfg.enabled
       }

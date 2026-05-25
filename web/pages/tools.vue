@@ -90,7 +90,7 @@ useHead({
 
 const { getTools } = useApi()
 const { data: apiCategories } = await useAsyncData('tools', () => getTools().catch(() => []), {
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] || nuxtApp.static.data[key],
+  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] ?? nuxtApp.static?.data?.[key],
 })
 
 const categories = computed(() => {
